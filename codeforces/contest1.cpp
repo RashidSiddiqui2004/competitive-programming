@@ -368,6 +368,33 @@ void sol2()
 }
 
 void s1(){
+    int n;cin>>n;
+    vector<int> a(n),b(n);
+    read_vector(a);
+    read_vector(b);
+    int ans=0;
+    while(true){
+        ans++;
+        bool check=0;
+        fl(i,n){
+            if(a[i]>b[i]){
+                a[i]--;
+                check=1;
+                break;
+            }
+        }
+        if(!check)break;
+        fl(i,n){
+            if(a[i]<b[i]){
+                a[i]++;
+                break;
+            }
+        }   
+    }
+    cout<<ans<<endl;
+}
+
+void s2(){
 
 }
 
@@ -377,7 +404,7 @@ int32_t main(){
 
     while (t--)
     {
-        s1();
+        s2();
     }
     
     return 0;
