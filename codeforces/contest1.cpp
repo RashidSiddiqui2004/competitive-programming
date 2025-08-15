@@ -310,7 +310,6 @@ public:
     }
 };
 
-
 void sol1(){
     int n,m;
     cin>>n>>m;
