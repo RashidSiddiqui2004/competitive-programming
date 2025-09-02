@@ -3,6 +3,15 @@
         "mutex": "cpp",
         "set": "cpp",
         "iostream": "cpp",
-        "vector": "cpp"
+        "vector": "cpp",
+        "unordered_map": "cpp",
+        "unordered_set": "cpp",
+        "array": "cpp",
+        "deque": "cpp",
+        "list": "cpp",
+        "map": "cpp",
+        "span": "cpp",
+        "string": "cpp",
+        "string_view": "cpp"
     }
 }
