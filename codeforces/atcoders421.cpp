@@ -948,37 +948,46 @@ void s12()
 const int MAXN = 200005;
 int dp[MAXN], nextJump[MAXN];
 
-int maxlenneatSubs(int n, vector<int> &v, unordered_map<int, vector<int>> &positions) {
+int maxlenneatSubs(int n, vector<int> &v, unordered_map<int, vector<int>> &positions)
+{
 
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < n; i++)
+    {
         auto &indices = positions[v[i]];
         auto itr = lower_bound(indices.begin(), indices.end(), i) - indices.begin();
         int rem = (int)indices.size() - itr;
-        if (rem >= v[i]) {
+        if (rem >= v[i])
+        {
             nextJump[i] = indices[itr + v[i] - 1] + 1;
-        } else {
+        }
+        else
+        {
             nextJump[i] = -1;
         }
     }
 
     // Bottom-up DP
-    dp[n] = 0;  
-    for (int i = n - 1; i >= 0; i--) {
-        dp[i] = dp[i + 1];  
-        if (nextJump[i] != -1) {
+    dp[n] = 0;
+    for (int i = n - 1; i >= 0; i--)
+    {
+        dp[i] = dp[i + 1];
+        if (nextJump[i] != -1)
+        {
             dp[i] = max(dp[i], v[i] + dp[nextJump[i]]);
         }
     }
     return dp[0];
 }
 
-void s13() {
+void s13()
+{
     int n;
     cin >> n;
     vector<int> v(n);
     unordered_map<int, vector<int>> positions;
 
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < n; i++)
+    {
         cin >> v[i];
         positions[v[i]].push_back(i);
     }
@@ -986,8 +995,412 @@ void s13() {
     cout << maxlenneatSubs(n, v, positions) << "\n";
 }
 
-void s14(){
-       
+void s14()
+{
+    int n;
+    cin >> n;
+    vector<int> v(n + 1);
+    for (size_t i = 1; i <= n; i++)
+    {
+        cin >> v[i];
+    }
+
+    vector<bool> dp(n + 1, 0);
+    dp[0] = 1;
+
+    for (int i = 1; i <= n; i++)
+    {
+        if ((i + v[i] <= n) and dp[i - 1])
+            dp[i + v[i]] = 1;
+        if ((i - v[i] - 1 >= 0) and dp[i - v[i] - 1])
+            dp[i] = 1;
+    }
+
+    if (dp[n])
+    {
+        cout << "YES\n";
+    }
+    else
+    {
+        cout << "NO\n";
+    }
+}
+
+void r1()
+{
+    int n;
+    cin >> n;
+
+    vector<vector<int>> v(n, vector<int>(4));
+    fl(i, n)
+    {
+        cin >> v[i][0] >> v[i][1] >> v[i][2];
+        v[i][3] = i;
+    }
+    sort(v.begin(), v.end(), [](vector<int> &v1, vector<int> &v2)
+         { return v1[0] < v2[0]; });
+    int color, lastx = INT_MIN, ultlastx = INT_MIN;
+    // traverse forwards
+    lastx = v[0][1];
+    color = v[0][2];
+    vector<int> ans(n, INT_MAX);
+    for (int i = 1; i < n; i++)
+    {
+        if (v[i][2] != color)
+        {
+            ans[v[i][3]] = max(0ll, lastx - v[i][0]);
+            ultlastx = lastx;
+            lastx = v[i][1];
+            color = v[i][2];
+        }
+        else
+        {
+            if (ultlastx != INT_MIN)
+                ans[v[i][3]] = max(0ll, ultlastx - v[i][0]);
+            lastx = v[i][1];
+        }
+    }
+    // traverse backwards
+    ultlastx = INT_MIN;
+    lastx = v[n - 1][0];
+    color = v[n - 1][2];
+    for (int i = n - 2; i >= 0; i--)
+    {
+        if (v[i][2] != color)
+        {
+            ans[v[i][3]] = min(ans[v[i][3]], max(0ll, lastx - v[i][1]));
+            ultlastx = lastx;
+            lastx = v[i][0];
+            color = v[i][2];
+        }
+        else
+        {
+            if (ultlastx != INT_MIN)
+                ans[v[i][3]] = min(ans[v[i][3]], max(0ll, ultlastx - v[i][1]));
+            lastx = v[i][0];
+        }
+    }
+
+    print_vector(ans);
+}
+
+bool isposs(vector<int> fr, int k, int mid)
+{
+    int i = 0;
+    int n = fr.size();
+    // all chars in pair
+    int oddelem = 0;
+    for (int i = 0; i < n; i++)
+    {
+        if (fr[i] % 2)
+        {
+            oddelem++;
+        }
+        fr[i] /= 2;
+    }
+    if ((mid % 2) == 0)
+    {
+        while (i < n)
+        {
+            int req = mid / 2;
+            while (req > 0 and i < n)
+            {
+                if (fr[i] >= req)
+                {
+                    fr[i] -= req;
+                    req = 0;
+                    k--;
+                }
+                else
+                {
+                    req -= fr[i];
+                    fr[i] = 0;
+                    ++i;
+                }
+            }
+            if (k == 0)
+                break;
+        }
+
+        return k == 0;
+    }
+
+    i = 0;
+    int origk = k;
+    // 1 element will occur without pair
+    while (i < n)
+    {
+        int req = (mid - 1) / 2;
+        while (req > 0 and i < n)
+        {
+            if (fr[i] >= req)
+            {
+                fr[i] -= req;
+                req = 0;
+                k--;
+            }
+            else
+            {
+                req -= fr[i];
+                fr[i] = 0;
+                ++i;
+            }
+        }
+        if (k == 0)
+            break;
+    }
+    int cntrem = oddelem + (2 * accumulate(fr.begin(), fr.end(), 0));
+    return k == 0 and cntrem >= origk;
+}
+
+void r2()
+{
+    int n, k;
+    cin >> n >> k;
+
+    string s;
+    cin >> s;
+
+    vector<int> freq(26, 0);
+    for (auto &ch : s)
+    {
+        freq[ch - 'a']++;
+    }
+    int low = 1, high = n, ans, mid;
+    while (low <= high)
+    {
+        mid = (low + high) / 2;
+        if (mid == 1 ? 1 : isposs(freq, k, mid))
+        {
+            ans = mid;
+            low = mid + 1;
+        }
+        else
+        {
+            high = mid - 1;
+        }
+    }
+    cout << ans << endl;
+}
+
+struct digitnode
+{
+    int stringpos;
+    int l;
+
+    digitnode() : stringpos(-1), l(-1) {}
+    digitnode(int pos, int l) : stringpos(pos), l(l) {}
+};
+
+void r3()
+{
+    int n, m;
+    cin >> n >> m;
+
+    vector<vector<digitnode>> adj(10, vector<digitnode>(10));
+
+    fl(i, n)
+    {
+        string s;
+        cin >> s;
+        for (int j = 0; j < m - 1; j++)
+        {
+            adj[s[j] - '0'][s[j + 1] - '0'] = digitnode(i + 1, j + 1);
+        }
+    }
+
+    string friendnum;
+    cin >> friendnum;
+
+    vector<pair<int, int>> ans;
+
+    if (m % 2 == 0)
+    {
+        for (int i = 0; i < m - 1; i += 2)
+        {
+            int curr = friendnum[i] - '0', nextchar = friendnum[i + 1] - '0';
+            if (adj[curr][nextchar].stringpos == -1)
+            {
+                cout << -1 << endl;
+                return;
+            }
+            else
+            {
+                ans.push_back({adj[curr][nextchar].l, adj[curr][nextchar].stringpos});
+            }
+        }
+
+        cout << ans.size() << endl;
+        for (auto i : ans)
+        {
+            cout << i.first << " " << i.first + 1 << " " << i.second << endl;
+        }
+    }
+    else
+    {
+        cout << "Can't handle odd length phone numbers\n";
+    }
+}
+
+void r4()
+{
+    int n, m;
+    cin >> n >> m;
+
+    vector<vector<vector<int>>> bitwiseedges(31);
+
+    fl(i, m)
+    {
+        int u, v, w;
+        cin >> u >> v >> w;
+        --u, --v;
+        fl(j, 31)
+        {
+            if ((w & (1 << j)) != 0)
+            {
+                bitwiseedges[j].push_back({u, v, w});
+            }
+        }
+    }
+
+    int mask = (1 << 31) - 1;
+
+    for (int i = 30; i >= 0; i--)
+    {
+        DSU dsu = DSU(n);
+        int edgecnt = 0;
+
+        for (int j = 0; j <= 30; j++)
+        {
+            if ((i != j) and (mask & (1 << j)) != 0)
+            {
+                for (auto t : bitwiseedges[j])
+                {
+                    if ((t[2] & (1 << i)) == 0 and dsu.getParent(t[0]) != dsu.getParent(t[1]))
+                    {
+                        edgecnt++;
+                        dsu.unionSets(t[0], t[1]);
+                    }
+                    if (edgecnt == (n - 1))
+                    {
+                        break;
+                    }
+                }
+            }
+        }
+
+        bool canbeunset = true;
+        int par = dsu.getParent(0);
+        for (int j = 1; j < n; j++)
+        {
+            if (dsu.getParent(j) != par)
+            {
+                canbeunset = false;
+                break;
+            }
+        }
+        if (canbeunset)
+        {
+            mask ^= (1 << i);
+        }
+    }
+
+    cout << mask << endl;
+}
+
+void r5()
+{
+    int n;
+    cin >> n;
+
+    vector<int> v(n);
+    read_vector(v);
+
+    int val = -1, val2 = -1;
+    fl(i, n)
+    {
+        for (size_t j = i + 1; j < n; j++)
+        {
+            if (v[i] > v[j])
+            {
+                val = v[i];
+                val2 = v[j];
+                break;
+            }
+        }
+        if (val != -1)
+            break;
+    }
+
+    if (val == -1)
+        cout << "NO\n";
+    else
+    {
+        cout << "YES\n";
+        cout << 2 << endl;
+        cout << val << " " << val2 << endl;
+    }
+}
+
+void r6()
+{
+    int n;
+    cin >> n;
+
+    vector<int> v(n);
+    read_vector(v);
+
+    int mini = INT_MAX, minpos = -1;
+    int sumofprefmin = 0;
+    for (int i = 0; i < n; i++)
+    {
+        if (v[i] == 0)
+            break;
+        if (v[i] < mini)
+        {
+            mini = v[i];
+            minpos = i;
+        }
+    }
+    int currmini = INT_MAX;
+    for (int i = 0; i <= minpos; i++)
+    {
+        currmini = min(currmini, v[i]);
+        sumofprefmin += currmini;
+    }
+    if ((minpos + 1 < n) and v[minpos + 1] != 0)
+        sumofprefmin += currmini;
+    cout << sumofprefmin << endl;
+}
+
+void r7()
+{
+    int n;
+    cin >> n;
+
+    vector<int> v(n);
+    read_vector(v);
+
+    int prevk = -1;
+    for (int i = 0; i < n - 1; i++)
+    {
+        if (v[i + 1] < v[i])
+        {
+            int mult = (v[i] + v[i + 1] - 1) / v[i + 1];
+            if (prevk == -1 || (mult % prevk != 0))
+            {
+                v[i + 1] = mult * v[i];
+                prevk = mult;
+            }
+            else 
+            {
+
+            }
+        }
+    }
+    if (prevk == -1)
+        prevk = 1;
+    cout << prevk << endl;
 }
 
 int32_t main()
@@ -997,7 +1410,7 @@ int32_t main()
 
     while (t--)
     {
-        s14();
+        r7();
     }
 
     return 0;
