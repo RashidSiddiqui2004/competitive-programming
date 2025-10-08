@@ -1008,17 +1008,376 @@ void interact()
 
 void sol1()
 {
-    
+    int n;
+    cin >> n;
+
+    int ans = (n * 1ll * (n - 1)) / 2;
+    ans++;
+
+    cout << ans << endl;
+}
+
+void sol2()
+{
+    int n, k;
+    cin >> n >> k;
+    vector<vector<char>> grid(n, vector<char>(n));
+
+    int rows = (k + n - 1) / n;
+    if (rows * 1ll * n == k)
+    {
+        for (int i = 0; i < rows; i++)
+        {
+            for (int j = 0; j < n; j++)
+            {
+                grid[i][j] = 'U';
+            }
+        }
+        for (int i = rows; i < n; i++)
+        {
+            grid[i][0] = 'R';
+            for (int j = 1; j < n; j++)
+            {
+                grid[i][j] = 'L';
+            }
+        }
+        cout << "YES\n";
+        for (auto i : grid)
+        {
+            print_vector(i);
+        }
+        return;
+    }
+    int lastrowcols = k - ((rows - 1) * n);
+
+    if ((n - lastrowcols) > 1)
+    {
+        for (int i = 0; i < rows; i++)
+        {
+            if (i == (rows - 1))
+            {
+                for (int j = 0; j < lastrowcols; j++)
+                {
+                    grid[i][j] = 'U';
+                }
+                grid[i][lastrowcols] = 'R';
+                for (int j = lastrowcols + 1; j < n; j++)
+                {
+                    grid[i][j] = 'L';
+                }
+            }
+            else
+            {
+                for (int j = 0; j < n; j++)
+                {
+                    grid[i][j] = 'U';
+                }
+            }
+        }
+        for (int i = rows; i < n; i++)
+        {
+            grid[i][0] = 'R';
+            for (int j = 1; j < n; j++)
+            {
+                grid[i][j] = 'L';
+            }
+        }
+        cout << "YES\n";
+        for (auto i : grid)
+        {
+            print_vector(i);
+        }
+        return;
+    }
+    else if ((n - rows) >= 1)
+    {
+        for (int i = 0; i < rows; i++)
+        {
+            if (i == (rows - 1))
+            {
+                for (int j = 0; j < lastrowcols; j++)
+                {
+                    grid[i][j] = 'U';
+                }
+                grid[i][lastrowcols] = 'D';
+            }
+            else
+            {
+                for (int j = 0; j < n; j++)
+                {
+                    grid[i][j] = 'U';
+                }
+            }
+        }
+        for (int i = rows; i < n; i++)
+        {
+            grid[i][0] = 'R';
+            for (int j = 1; j < n; j++)
+            {
+                grid[i][j] = 'L';
+            }
+        }
+        grid[rows][n - 1] = 'U';
+        cout << "YES\n";
+        for (auto i : grid)
+        {
+            print_vector(i);
+        }
+        return;
+    }
+    cout << "NO\n";
+}
+
+ll modcf = 676767677;
+
+void sol3()
+{
+    int n;
+    cin >> n;
+    vector<int> v(n);
+    read_vector(v);
+
+    for (int i = 1; i < n; i++)
+    {
+        if ((v[i] > v[i - 1]) || ((1 + v[i]) < v[i - 1]))
+        {
+            cout << 0 << endl;
+            return;
+        }
+    }
+
+    cout << 1 << endl;
+}
+
+void p1()
+{
+    int n;
+    cin >> n;
+
+    vector<int> v(n);
+
+    int ones = 0, zeros = 0;
+    fl(i, n)
+    {
+        char s;
+        cin >> s;
+        if (s == 'a')
+        {
+            v[i] = 1;
+            ones++;
+        }
+        else
+        {
+            v[i] = -1;
+            zeros++;
+        }
+    }
+
+    int diff = ones - zeros;
+
+    if (diff == 0)
+    {
+        cout << 0 << endl;
+        return;
+    }
+    if (abs(diff) == n)
+    {
+        cout << -1 << endl;
+        return;
+    }
+
+    unordered_map<int, int> fr;
+    int ans = n;
+    int sum = 0;
+
+    fr[0] = -1;
+    int ind = 0;
+
+    for (auto i : v)
+    {
+        sum += i;
+        if (fr.count(sum - diff))
+        {
+            ans = min(ans, ind - fr[sum - diff]);
+        }
+        fr[sum] = ind;
+        ++ind;
+    }
+
+    if (ans == n)
+    {
+        ans = -1;
+    }
+
+    cout << ans << endl;
+}
+
+void p2()
+{
+    int n, k;
+    cin >> n >> k;
+    vector<int> v(n);
+    fl(i, n)
+    {
+        v[i] = i + 1;
+    }
+
+    list<int> temp;
+
+    for (auto i : v)
+    {
+        temp.push_back(i);
+    }
+
+    fl(i, n)
+    {
+
+        int sum = 0;
+
+        if (sum == k)
+        {
+            for (auto i : temp)
+            {
+                cout << i << " ";
+            }
+            cout << endl;
+            return;
+        }
+
+        int fr = temp.back();
+        temp.pop_back();
+        temp.push_front(fr);
+    }
+
+    cout << 0 << endl;
+}
+
+using pii = pair<int, int>;
+
+int ac, dr;
+struct Comparator
+{
+    bool operator()(const pii &a, const pii &b) const
+    {
+        int diffa = max(a.first - ac, 0ll) + max(a.second - dr, 0ll);
+        int diffb = max(b.first - ac, 0ll) + max(b.second - dr, 0ll);
+        if (diffa == diffb)
+        {
+            if (a.first == b.first)
+                return a.second < b.second;
+            return a.first < b.first;
+        }
+        return diffa < diffb;
+    }
+};
+
+void p3()
+{
+    cin >> ac >> dr;
+    int n;
+    cin >> n;
+
+    set<pii, Comparator> st;
+    vector<pii> v(n);
+
+    fl(i, n)
+    {
+        int a;
+        cin >> a;
+        v[i].first = a;
+    }
+
+    fl(i, n)
+    {
+        int b;
+        cin >> b;
+        v[i].second = b;
+    }
+
+    for (auto i : v)
+    {
+        st.insert({i.first, i.second});
+    }
+
+
+    int m;
+    cin >> m;
+
+    fl(i, m)
+    {
+        int id, newa, newb;
+        cin >> id >> newa >> newb;
+        --id;
+
+        st.erase(v[id]);
+        v[id] = {newa, newb};
+        st.insert(v[id]);
+
+        int p = 0;
+        for (auto &[a, b] : st)
+        {
+            int diff = max(a - ac, 0ll) + max(b - dr, 0ll);
+            if (diff <= p)
+            {
+                p++;
+            }
+            else
+            {
+                break;
+            }
+        }
+        cout << p << endl;
+    }
+}
+
+
+long long getdiff(const pii &p) {
+    return (long long)max(0ll, p.first - ac) + max(0ll, p.second - dr);
+}
+
+void p4() {
+    cin >> ac >> dr;
+    int n;
+    cin >> n;
+
+    vector<pii> v(n);
+    for (int i = 0; i < n; i++) cin >> v[i].first;
+    for (int i = 0; i < n; i++) cin >> v[i].second;
+
+    multiset<int> dist;
+    for (auto &p : v) dist.insert(getdiff(p));
+
+    int m;
+    cin >> m;
+
+    for (int i = 0; i < m; i++) {
+        int id, newa, newb;
+        cin >> id >> newa >> newb;
+        --id;
+        dist.erase(dist.find(getdiff(v[id])));
+
+        v[id] = {newa, newb};
+        dist.insert(getdiff(v[id]));
+
+        int p = 0;
+        for (auto diff : dist) {
+            if (diff <= p)
+                p++;
+            else
+                break;
+        }
+        cout << p << "\n";
+    }
 }
 
 int32_t main()
 {
     int t = 1;
-    cin >> t;
+    // cin >> t;
 
     while (t--)
     {
-        sol1();
+        p4();
     }
 
     khalaas
