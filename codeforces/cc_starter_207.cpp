@@ -183,7 +183,7 @@ vector<int> sieve(int n)
 {
     primes.clear();
     isPrime.assign(n + 1, true);
-
+    isPrime[0] = isPrime[1] = false;
     for (int i = 2; i <= n; i++)
     {
         if (isPrime[i])
@@ -993,14 +993,520 @@ void r6()
     cout << ans << endl;
 }
 
+void r7()
+{
+    int n, m;
+    cin >> n >> m;
+
+    vector<int> v(m + 1, 0ll);
+    fl(i, n)
+    {
+        int e;
+        cin >> e;
+        v[e]++;
+    }
+
+    int ans = 0;
+    int total = accumulate(all(v), 0ll);
+
+    fl(i, m + 1)
+    {
+        ans += 1ll * v[i] * (total - v[i]);
+    }
+
+    cout << ans / 2 << endl;
+}
+
+void r8()
+{
+    int n, m, k, s;
+    cin >> n >> m >> k >> s;
+    vector<pair<int, int>> a(n), b(n);
+    fl(i, n)
+    {
+        cin >> a[i].first;
+    }
+    fl(i, n)
+    {
+        cin >> b[i].first;
+    }
+    vector<pair<int, int>> typeD, typeP;
+    int dtaken = -1, ptaken = -1;
+    int daydtaken = -1, dayptaken = -1;
+
+    fl(i, m)
+    {
+        int type, cost;
+        cin >> type >> cost;
+        if (type == 1)
+            typeD.push_back({cost, i});
+        else
+            typeP.push_back({cost, i});
+    }
+    sort(all(typeD));
+    sort(all(typeP));
+
+    a[0].second = 0;
+    b[0].second = 0;
+    for (int i = 1; i < n; i++)
+    {
+        if (a[i].first >= a[i - 1].first)
+        {
+            a[i].first = a[i - 1].first;
+            a[i].second = a[i - 1].second;
+        }
+        else
+        {
+            a[i].second = i;
+        }
+        if (b[i].first >= b[i - 1].first)
+        {
+            b[i].first = b[i - 1].first;
+            b[i].second = b[i - 1].second;
+        }
+        else
+        {
+            b[i].second = i;
+        }
+    }
+
+    for (int i = 1; i < typeD.size(); i++)
+    {
+        typeD[i].first += typeD[i - 1].first;
+    }
+    for (int i = 1; i < typeP.size(); i++)
+    {
+        typeP[i].first += typeP[i - 1].first;
+    }
+
+    int ans = n + 1;
+
+    int dcount = typeD.size();
+    int pcount = typeP.size();
+
+    // mixture of both D and P
+    if ((dcount + pcount) >= k)
+    {
+        int mind = INT_MAX, minp = INT_MIN;
+        int low = 0, high = n - 1, mid;
+        while (low <= high)
+        {
+            mid = (low + high) / 2;
+            int mind = a[mid].first, minp = b[mid].first;
+            bool possible = false;
+            // j -> denotes number of toys of type dollars (D)
+            fl(j, min(k + 1, dcount + 1))
+            {
+                int sumd = j == 0 ? 0 : typeD[j - 1].first;
+                int requiredPcnt = k - j;
+                if (requiredPcnt > pcount)
+                    continue;
+                int sump = (k - j == 0) ? 0 : typeP[k - j - 1].first;
+                int reqmoney = sumd * mind + sump * minp;
+                // cout << reqmoney << endl;
+                if (reqmoney <= s)
+                {
+                    possible = true;
+                    dtaken = j;
+                    ptaken = requiredPcnt;
+                    daydtaken = a[mid].second + 1;
+                    dayptaken = b[mid].second + 1;
+                    break;
+                }
+            }
+
+            if (possible)
+            {
+                ans = min(ans, mid + 1);
+                high = mid - 1;
+            }
+            else
+            {
+                low = mid + 1;
+            }
+        }
+    }
+
+    if (ans == (n + 1))
+    {
+        ans = -1;
+    }
+    cout << ans << endl;
+
+    if (ans != -1)
+    {
+        fl(i, dtaken)
+        {
+            cout << typeD[i].second + 1 << " " << daydtaken << endl;
+        }
+        fl(i, ptaken)
+        {
+            cout << typeP[i].second + 1 << " " << dayptaken << endl;
+        }
+    }
+}
+
+// 0-1 BFS
+void bfs01()
+{
+    int n;
+    // weighted adj list (node, weight (0-1))
+    vector<vector<pair<int, int>>> adj(n);
+    set<cutenode> st;
+    int src = 0;
+    st.insert({0, src});
+
+    vector<int> dist(n, InF);
+
+    while (!st.empty())
+    {
+        int v = st.begin()->second;
+        st.erase(st.begin());
+        for (auto edge : adj[v])
+        {
+            int u = edge.first;
+            int w = edge.second;
+
+            if (dist[v] + w < dist[u])
+            {
+                st.erase({dist[u], u});
+                dist[u] = dist[v] + w;
+                st.insert({dist[u], u});
+            }
+        }
+    }
+
+    // print the distance vector
+    print_vector(dist);
+}
+
+void r9()
+{
+    sieve(1e5 + 2);
+    vector<int> nums;
+    int n = nums.size();
+    map<int, int> suffix_map, prefix_map;
+    for (auto i : nums)
+    {
+        if (isPrime[i])
+        {
+            ++suffix_map[i];
+        }
+    }
+    int maxprimesum = 0, prefprimecnt = 0, suffixprimecnt = suffix_map.size();
+    for (int i = 0; i < n - 1; i++)
+    {
+        if (isPrime[nums[i]])
+        {
+            if (prefix_map[nums[i]]++ == 0)
+            {
+                ++prefprimecnt;
+            }
+            if (--suffix_map[nums[i]] == 0)
+            {
+                suffix_map.erase(nums[i]);
+                --suffixprimecnt;
+            }
+            maxprimesum = max(maxprimesum, prefprimecnt + suffixprimecnt);
+        }
+    }
+}
+
+void p1()
+{
+    int n;
+    cin >> n;
+    int ans = 0;
+    vector<int> v(n);
+    read_vector(v);
+
+    for (int i = 0; i < n; i++)
+    {
+        int sum = 0;
+        for (int j = i; j < n; j++)
+        {
+            sum += v[j];
+            int avg = (sum) / (j - i + 1);
+            ans = max(ans, avg);
+        }
+    }
+
+    cout << ans << endl;
+}
+
+vector<int> ans;
+bool possible = false;
+
+void checkpossible(string &s, int i, set<int> &ind, bool cantake0 = true)
+{
+    if (possible)
+    {
+        return;
+    }
+    int n = s.size();
+
+    if (i == n)
+    {
+        string curr = "";
+        fl(i, n)
+        {
+            if (!ind.count(i))
+            {
+                curr += s[i];
+            }
+        }
+        int p1 = 0, p2 = curr.size() - 1;
+        bool ispal = true;
+        while (p1 < p2)
+        {
+            if (curr[p1] != curr[p2])
+            {
+                ispal = false;
+                break;
+            }
+            p1++, p2--;
+        }
+        if (ispal)
+        {
+            ans = vector<int>(ind.begin(), ind.end());
+            possible = true;
+        }
+        return;
+    }
+
+    checkpossible(s, i + 1, ind, cantake0);
+
+    if (s[i] == '1')
+    {
+        ind.insert(i);
+        checkpossible(s, i + 1, ind, 0);
+        ind.erase(i);
+    }
+    else if (cantake0)
+    {
+        ind.insert(i);
+        checkpossible(s, i + 1, ind, 1);
+        ind.erase(i);
+    }
+}
+
+void p2()
+{
+    int n;
+    cin >> n;
+    string s;
+    cin >> s;
+
+    set<int> st;
+    possible = false;
+    // ans.clear();
+    checkpossible(s, 0, st);
+
+    if (possible)
+    {
+        cout << (int)ans.size() << endl;
+        for (auto i : ans)
+        {
+            cout << i + 1 << " ";
+        }
+        cout << endl;
+    }
+    else
+    {
+        cout << -1 << endl;
+    }
+}
+
+void p3()
+{
+    int x, y;
+    cin >> x >> y;
+
+    bitset<32 * sizeof(int)> bitx(x), bity(y);
+    int f1, f2 = 0;
+
+    for (int i = 32; i >= 0; i--)
+    {
+        if (bitx[i] == 1)
+        {
+            f1 = i;
+            break;
+        }
+    }
+    for (int i = 32; i >= 0; i--)
+    {
+        if (bity[i] == 1)
+        {
+            f2 = i;
+            break;
+        }
+    }
+
+    if (f2 > f1)
+    {
+        cout << -1 << endl;
+        return;
+    }
+
+    vector<int> ans;
+
+    if (bity[f1] == 0)
+    {
+        ans.push_back(1 << f1);
+    }
+
+    int num = 0;
+
+    for (int i = f1 - 1; i >= 0; i--)
+    {
+        if (bitx[i] != bity[i])
+        {
+            num |= (1 << i);
+        }
+    }
+
+    ans.push_back(num);
+
+    sort(all(ans));
+
+    int z = x;
+    for (auto i : ans)
+    {
+        z ^= i;
+    }
+
+    if (z == y)
+    {
+        cout << ans.size() << endl;
+        print_vector(ans);
+    }
+    else
+    {
+        cout << -1 << endl;
+        return;
+    }
+}
+
+map<pair<int, int>, int> queries;
+
+int query(int type, int i, int n)
+{
+    if (i == 1 and type == 1)
+    {
+        return (n * (n + 1)) / 2;
+    }
+
+    if (queries.count({type, i}))
+    {
+        return queries[{type, i}];
+    }
+
+    cout << type << " " << i << " " << n << endl;
+    fflush(stdout);
+
+    int ans;
+    cin >> ans;
+    return queries[{type, i}] = ans;
+}
+
+void p4()
+{
+    queries.clear();
+
+    int n;
+    cin >> n;
+
+    int low = 1, high = n, lval = 1, mid, rval;
+
+    int finalsum;
+    cout << 2 << " " << 1 << " " << n << endl;
+    fflush(stdout);
+    cin >> finalsum;
+
+    int increment = finalsum - (n * (n + 1)) / 2;
+
+    while (low <= high)
+    {
+        mid = (low + high) / 2;
+        int orig = query(1, mid, n);
+        int modified = query(2, mid, n);
+        if (orig == modified)
+        {
+            low = mid + 1;
+        }
+        else
+        {
+            lval = max(lval, mid);
+            high = mid - 1;
+        }
+    }
+
+    rval = lval + increment - 1;
+
+    cout << "! " << lval << " " << rval << endl;
+    fflush(stdout);
+}
+
+void p5()
+{
+    int n, k;
+    cin >> n >> k;
+    vector<int> v(n);
+    read_vector(v);
+
+    vector<int> vis(n + 1, 1);
+    vis[v[n - 1]] = 0;
+    vis[v[n - 2]] = 0;
+
+    for (int i = 1; i <= n and k > 0; i++)
+    {
+        if (vis[i])
+        {
+            cout << i << " ";
+            v.push_back(i);
+            k--;
+        }
+    }
+
+    if (k == 2)
+    {
+        // we need 2 values
+        int minpalindromes = INT_MAX;
+        int res = -1;
+        for (int i = 1; i <= n; i++)
+        {
+            // check all possible values with palindromic subarrays including last element
+            v.push_back(i);
+
+            v.pop_back();
+        }
+    }
+    else if (k == 1)
+    {
+        int minpalindromes = INT_MAX;
+        int res = -1;
+        for (int i = 1; i <= n; i++)
+        {
+            // check all possible values with palindromic subarrays including last element
+            v.push_back(i);
+
+            v.pop_back();
+        }
+        cout << res << endl;
+    }
+
+    cout << endl;
+}
+
 int32_t main()
 {
+
     int t = 1;
-    // cin >> t;
+    cin >> t;
 
     while (t--)
     {
-        r6();
+        p4();
     }
 
     khalaas

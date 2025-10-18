@@ -30,7 +30,7 @@ public:
         build(2 * node + 1, mid + 1, end, arr);
         tree[node] = tree[2 * node] + tree[2 * node + 1];
     }
-
+ 
     void push(int node, int start, int end) {
         if (lazy[node] != 0) {
             // Apply the pending update
@@ -76,8 +76,9 @@ public:
         push(node, start, end);
 
         if (start > r || end < l) return 0; // no overlap
-        if (l <= start && end <= r) return tree[node];
+        if (l <= start && end <= r) return tree[node]; // complete overlap
 
+        // partial overlap
         int mid = (start + end) / 2;
         return query(2 * node, start, mid, l, r) +
                query(2 * node + 1, mid + 1, end, l, r);

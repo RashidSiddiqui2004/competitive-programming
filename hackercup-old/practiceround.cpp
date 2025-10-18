@@ -65,7 +65,6 @@ typedef vector<pll> vpll;
 #define vvi vector<vector<int>>
 // Constants
 const int MOD = 1e9 + 7;
-const ll InF = 1e18;
 const double EPS = 1e-9;
 const ll nEG = -1e18;
 
@@ -367,30 +366,6 @@ int lognk(ll n, ll k)
     }
     return ans;
 }
-
-// vector<ll> primes, isPrime;
-// bool calc = false;
-// const ll MAXN = 1e7 + 2;
-
-// void precompute()
-// {
-//     if (calc)
-//         return;
-//     calc = true;
-//     isPrime.resize(MAXN, 1);
-//     isPrime[0] = isPrime[1] = 0;
-//     for (ll i = 2; i < MAXN; i++)
-//     {
-//         if (isPrime[i])
-//         {
-//             primes.push_back(i);
-//             for (ll j = i * i; j < MAXN; j += i)
-//             {
-//                 isPrime[j] = 0;
-//             }
-//         }
-//     }
-// }
 
 void solve1(int casenum, std::ifstream &inFile, std::ofstream &outFile)
 {
@@ -762,111 +737,365 @@ void solve4(int casenum, std::ifstream &inFile, std::ofstream &outFile)
 void solve5(int casenum, std::ifstream &inFile, std::ofstream &outFile)
 {
     outFile << "Case #" << casenum << ": ";
-    int n, m;
-    inFile >> n >> m;
+    int s, d, k;
+    inFile >> s >> d >> k;
 
-    vector<pair<int, int>> edges(m);
+    int buns = 2 * (s + d), cheese = s + 2 * d;
 
-    for (int i = 0; i < m; i++)
+    if (buns >= (k + 1) and cheese >= k)
     {
-        inFile >> edges[i].first >> edges[i].second;
+        outFile << "YES\n";
+    }
+    else
+    {
+        outFile << "NO\n";
+    }
+}
+
+void solve6(int casenum, std::ifstream &inFile, std::ofstream &outFile)
+{
+    outFile << "Case #" << casenum << ": ";
+    int a, b, c;
+    inFile >> a >> b >> c;
+
+    int maxdouble = c / b;
+    int remc = c - (maxdouble * b);
+    int maxsingle = remc / a;
+    int maxdeck = min(maxsingle + 2 * maxdouble, 2ll * (maxsingle + maxdouble) - 1);
+
+    if (maxdouble > 0)
+    {
+        maxdouble--;
+        remc += b;
+        maxsingle = remc / a;
+        maxdeck = max(maxdeck, min(maxsingle + 2 * maxdouble, 2ll * (maxsingle + maxdouble) - 1));
     }
 
-    string result(m, '1');
-    vector<int> day1(n + 1, 0);
-    vector<int> day2(n + 1, 0);
-
-    for (int i = 0; i < m; i++)
     {
-        day1[edges[i].first]++;
-        day1[edges[i].second]++;
+        maxsingle = c / a;
+        remc = c - (maxsingle * a);
+        maxdouble = remc / b;
+        maxdeck = max(maxdeck, min(maxsingle + 2 * maxdouble, 2ll * (maxsingle + maxdouble) - 1));
     }
 
-    long long currcost = 0;
-    for (int i = 1; i <= n; i++)
+    maxdeck = max(maxdeck, 0ll);
+    outFile << maxdeck << endl;
+}
+
+void solve7(int casenum, std::ifstream &inFile, std::ofstream &outFile)
+{
+    outFile << "Case #" << casenum << ": ";
+    int a, b, c, d;
+    inFile >> a >> b;
+    inFile >> c >> d;
+
+    if (a > b)
     {
-        currcost += (1LL * day1[i] * day1[i]);
+        outFile << "YES\n";
+    }
+    else
+    {
+        outFile << "NO\n";
+    }
+}
+
+void solve8(int casenum, std::ifstream &inFile, std::ofstream &outFile)
+{
+    outFile << "Case #" << casenum << ": ";
+    int n;
+    inFile >> n;
+
+    int m = (2 * n) - 1;
+
+    vector<int> v(m);
+
+    fl(i, m)
+    {
+        inFile >> v[i];
     }
 
-    bool improved = true;
-    while (improved)
-    {
-        improved = false;
+    sort(all(v));
 
-        for (int i = 0; i < m; i++)
+    if (n == 1)
+    {
+        outFile << 1 << endl;
+        return;
+    }
+
+    int lastelem = v[m - 1];
+    int ans = INT_MAX;
+
+    {
+        int sum = v[1] + lastelem;
+        int p1 = 1, p2 = m - 1;
+        while (p1 < p2)
         {
-            int u = edges[i].first;
-            int v = edges[i].second;
-
-            int oldval = (1ll * day1[u] * day1[u]) +
-                         (1ll * day1[v] * day1[v]) +
-                         (1ll * day2[u] * day2[u]) +
-                         (1ll * day2[v] * day2[v]);
-
-            if (result[i] == '1')
+            if (v[p1] + v[p2] != sum)
             {
-                day1[u]--;
-                day1[v]--;
-                day2[u]++;
-                day2[v]++;
-
-                int newval = (1ll * day1[u] * day1[u]) +
-                             (1ll * day1[v] * day1[v]) +
-                             (1ll * day2[u] * day2[u]) +
-                             (1ll * day2[v] * day2[v]);
-
-                if (newval < oldval)
-                {
-                    result[i] = '2';
-                    currcost += (newval - oldval);
-                    improved = true;
-                }
-                else
-                {
-                    day1[u]++;
-                    day1[v]++;
-                    day2[u]--;
-                    day2[v]--;
-                }
+                break;
             }
-            else
-            {
-                day2[u]--;
-                day2[v]--;
-                day1[u]++;
-                day1[v]++;
-
-                int newval = (1LL * day1[u] * day1[u]) +
-                             (1ll * day1[v] * day1[v]) +
-                             (1ll * day2[u] * day2[u]) +
-                             (1ll * day2[v] * day2[v]);
-
-                if (newval < oldval)
-                {
-                    result[i] = '1';
-                    currcost += (newval - oldval);
-                    improved = true;
-                }
-                else
-                {
-                    day2[u]++;
-                    day2[v]++;
-                    day1[u]--;
-                    day1[v]--;
-                }
-            }
+            ++p1, --p2;
+        }
+        if (p1 > p2 and sum > v[0])
+        {
+            ans = sum - v[0];
         }
     }
 
-    outFile << currcost << " " << result << endl;
+    {
+        int sum = v[0] + v[m - 2];
+        int p1 = 0, p2 = m - 2;
+        while (p1 < p2)
+        {
+            if (v[p1] + v[p2] != sum)
+            {
+                break;
+            }
+            ++p1, --p2;
+        }
+        if (p1 > p2 and (sum > v[m - 1]))
+        {
+            ans = min(ans, sum - v[m - 1]);
+        }
+    }
+
+    {
+        int sum = v[0] + lastelem;
+        int p1 = 0, p2 = m - 1;
+        bool check = true;
+
+        while (p1 <= p2)
+        {
+            if (p1 == p2)
+            {
+                if (check == false)
+                {
+                    break;
+                }
+                else
+                {
+                    if (sum > v[p1])
+                        ans = min(ans, sum - v[p1]);
+                }
+            }
+
+            if (v[p1] + v[p2] != sum)
+            {
+                if (check)
+                {
+                    check = false;
+                    if (v[p1] + v[p2 - 1] == sum)
+                    {
+                        ans = min(ans, sum - v[p2]);
+                        p2--;
+                    }
+                    else if (v[p1 + 1] + v[p2] == sum)
+                    {
+                        ans = min(ans, sum - v[p1]);
+                        p1++;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
+            ++p1, --p2;
+        }
+    }
+
+    if (ans == INT_MAX)
+    {
+        ans = -1;
+    }
+    else
+    {
+        v.push_back(ans);
+        sort(all(v));
+        int p1 = 0, p2 = (int)v.size() - 1;
+        int currsum = v.front() + v.back();
+        while (p1 < p2)
+        {
+            if (v[p1] + v[p2] != currsum)
+            {
+                ans = -1;
+                break;
+            }
+            ++p1, --p2;
+        }
+    }
+
+    outFile << ans << endl;
+}
+
+void solve9(int casenum, std::ifstream &inFile, std::ofstream &outFile)
+{
+    outFile << "Case #" << casenum << ": ";
+    int p;
+    inFile >> p;
+    vector<int> freq(42, 0);
+    for (auto i : primes)
+    {
+        if (p == 1)
+            break;
+        if (p % i == 0)
+        {
+            while (p > 1 and p % i == 0)
+            {
+                p /= i;
+                freq[i]++;
+            }
+        }
+        if (i == 41)
+        {
+            if (p > 1)
+            {
+                outFile << -1 << endl;
+                return;
+            }
+            else
+                break;
+        }
+    }
+    vector<int> ans;
+
+    for (int i = 2; i <= 41; i++)
+    {
+        int t = freq[i];
+        while (t--)
+        {
+            ans.push_back(i);
+        }
+    }
+    int sum = accumulate(all(ans), 0ll);
+
+    if (sum <= 41)
+    {
+        priority_queue<int> pq;
+        multiset<int> st;
+
+        for (auto i : ans)
+        {
+            pq.push(i);
+            st.insert(i);
+        }
+
+        while (!pq.empty())
+        {
+            int p1 = pq.top();
+            pq.pop();
+
+            if(freq[p1]==0){
+                continue;
+            }
+
+            bool possible = false;
+            int chosen = -1;
+            int newsum = sum;
+
+            for (auto it = st.rbegin(); it != st.rend(); ++it)
+            {
+                int val = *it; 
+
+                if (val == p1 && freq[p1] == 1)
+                    continue;
+
+                int tmpSum = sum - (p1 + val) + (p1 * val);
+                if (tmpSum <= 41)
+                {
+                    chosen = val;
+                    newsum = tmpSum;
+                    possible = true;
+                    break;
+                }
+            }
+
+            if (!possible)
+                continue;
+
+            pq.push(p1 * chosen);
+
+            freq[p1]--;
+            freq[chosen]--;
+            freq[p1 * chosen]++;
+
+            if (p1 == chosen)
+            {
+                auto it1 = st.find(p1);
+                if (it1 != st.end())
+                    st.erase(it1);
+                it1 = st.find(p1);
+                if (it1 != st.end())
+                    st.erase(it1);
+            }
+            else
+            {
+                auto it1 = st.find(chosen);
+                if (it1 != st.end())
+                    st.erase(it1);
+
+                auto it2 = st.find(p1);
+                if (it2 != st.end())
+                    st.erase(it2);
+            }
+
+            st.insert(p1 * chosen);
+            sum = newsum;
+        }
+
+        vector<int> res;
+        for (auto i : st)
+        {
+            res.push_back(i);
+        }
+
+        sum = accumulate(all(res), 0ll);
+
+        if (sum > 41)
+        {
+            outFile << -1 << endl;
+            return;
+        }
+
+        int diff = 41 - sum;
+
+        while (diff--)
+        {
+            res.push_back(1);
+        }
+
+        sort(all(res));
+
+        int m = (int)res.size();
+        outFile << m << " ";
+
+        fl(i, m)
+        {
+            outFile << res[i] << " ";
+        }
+
+        outFile << endl;
+        return;
+    }
+
+    outFile << -1 << endl;
+}
+
+void s1(int casenum, std::ifstream &inFile, std::ofstream &outFile)
+{
+    
 }
 
 signed main()
 {
-    // precompute();
+    sieve(100);
     // precompute_factorials(maxn);
-    // std::string inputfile = "input.txt";
-    std::string inputfile = "plan_out_validation_input.txt";
+    std::string inputfile = "input.txt";
+    // std::string inputfile = "sum_41_chapter_2_input.txt";
     std::string outputfile = "output.txt";
 
     std::ifstream inFile(inputfile);
@@ -887,7 +1116,7 @@ signed main()
     inFile >> t;
 
     for (int i = 1; i <= t; i++)
-        solve5(i, inFile, outFile);
+        s1(i, inFile, outFile);
 
     outFile.close();
     std::cout << "Output successfully written to " + outputfile << endl;
