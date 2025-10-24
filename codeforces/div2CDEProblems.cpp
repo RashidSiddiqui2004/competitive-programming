@@ -496,17 +496,536 @@ void s4()
 
 void s5()
 {
+    int a, b;
+    cin >> a >> b;
+
+    if (a > b)
+    {
+        swap(a, b);
+    }
+
+    if (a % 2 == 0)
+    {
+        int newa = a / 2, newb = 2 * b;
+        if (newa > newb)
+            swap(newa, newb);
+        if (a != newa || b != newb)
+        {
+            yes;
+        }
+    }
+    if (b % 2 == 0)
+    {
+        int newa = b / 2, newb = 2 * a;
+        if (newa > newb)
+            swap(newa, newb);
+        if (a != newa || b != newb)
+        {
+            yes;
+        }
+    }
+
+    no;
+}
+
+void s6()
+{
+    int n;
+    cin >> n;
+    vector<int> v(n);
+    read_vector(v);
+    set<int> st(v.begin(), v.end());
+    vector<int> uniq(st.begin(), st.end());
+    int ans = 1;
+    int m = uniq.size();
+    fl(i, m)
+    {
+        auto it = upper_bound(all(uniq), uniq[i] + n - 1);
+        --it;
+        int j = it - uniq.begin();
+        ans = max(ans, j - i + 1);
+    }
+    cout << ans << endl;
+}
+
+unordered_set<int> getevendivisors(int n)
+{
+    unordered_set<int> st;
+    for (int i = 1; i * i <= n; i++)
+    {
+        if (n % i == 0)
+        {
+            if (i % 2 == 0)
+            {
+                st.insert(i);
+            }
+            if ((n / i) % 2 == 0)
+            {
+                st.insert(n / i);
+            }
+        }
+    }
+    unordered_set<int> res;
+    for (auto i : st)
+    {
+        res.insert(1 + (i / 2));
+    }
+    return res;
+}
+
+void s7()
+{
+    int n, x;
+    cin >> n >> x;
+    unordered_set<int> st = getevendivisors(n - x);
+    unordered_set<int> st1 = getevendivisors(n + x - 2);
+
+    for (auto i : st1)
+    {
+        st.insert(i);
+    }
+    int total = 0;
+    for (auto i : st)
+    {
+        // if i < x -> x will never appear in its sequence
+        if (i >= x)
+        {
+            total++;
+        }
+    }
+    cout << total << endl;
+}
+
+void s8()
+{
+    int q;
+    cin >> q;
+    int bal_value = 0;
+    vector<int> a, b;
+    a.push_back(0);
+    b.push_back(0);
+    fl(i, q)
+    {
+        int type;
+        cin >> type;
+        if (type == 2)
+        {
+            a.pop_back();
+            b.pop_back();
+        }
+        else
+        {
+            char ch;
+            cin >> ch;
+            if (ch == '(')
+            {
+                a.push_back(a.back() + 1);
+            }
+            else
+            {
+                a.push_back(a.back() - 1);
+            }
+            b.push_back(min(a.back(), b.back()));
+        }
+        if (a.back() == 0 and b.back() == 0)
+        {
+            cout << "Yes\n";
+        }
+        else
+        {
+            cout << "No\n";
+        }
+    }
+}
+
+void p1()
+{
+    int n, m;
+    cin >> n >> m;
+    cout << n * (m / 2) << endl;
+}
+
+void p2()
+{
+    int n;
+    cin >> n;
+    vector<pair<int, int>> v(n);
+    fl(i, n)
+    {
+        cin >> v[i].first;
+    }
+    fl(i, n)
+    {
+        cin >> v[i].second;
+    }
+    sort(all(v));
+    for (auto i : v)
+    {
+        cout << i.first << " ";
+    }
+    cout << endl;
+    for (auto i : v)
+    {
+        cout << i.second << " ";
+    }
+    cout << endl;
+}
+
+void t1()
+{
+    int n, k;
+    cin >> n >> k;
+    string s;
+    cin >> s;
+
+    int ans = 0;
+    for (int i = 0; i < n; i++)
+    {
+        if (s[i] == '1')
+        {
+            bool ch = false;
+            for (int j = max(0ll, i - k + 1); j < i; j++)
+            {
+                if (s[j] == '1')
+                {
+                    ch = true;
+                    break;
+                }
+            }
+            if (ch == false)
+            {
+                ans++;
+            }
+        }
+    }
+
+    cout << ans << endl;
+}
+
+void t2()
+{
+    int n;
+    cin >> n;
+    vector<int> a(n + 1);
+    fl(i, n)
+    {
+        cin >> a[i + 1];
+    }
+
+    int maxi = -1;
+
+    fl(i, n)
+    {
+        maxi = max(maxi, a[i + 1]);
+        if ((i + 1) % 2 == 0)
+        {
+            a[i + 1] = maxi;
+        }
+    }
+
+    a[0] = INT_MAX;
+    a.push_back(INT_MAX);
+
+    int ans = 0;
+
+    // for (auto i : a)
+    // {
+    //     cout << i << " ";
+    // }
+    // cout << endl;
+
+    for (int i = 1; i <= n; i += 2)
+    {
+        int mini = min(a[i - 1], a[i + 1]);
+        if (a[i] >= mini)
+            ans += abs(a[i] - mini + 1);
+    }
+
+    cout << ans << endl;
+}
+
+void t3()
+{
+    int n;
+    cin >> n;
+    vector<int> a(n), b(n);
+    read_vector(a);
+    read_vector(b);
+
+    int ans = 2;
+    sort(all(a));
+
+    // ans=0
+    map<int, int> p;
+    for (auto i : a)
+    {
+        if (i != 1)
+            p[i]++;
+    }
+    int mx = *max_element(all(a));
+    for (auto i : p)
+    {
+        for (int j = 1;; j++)
+        {
+            int req = i.first * j;
+            if (req > mx)
+                break;
+            if (p.count(req))
+            {
+                if (req == i.first and i.second > 1)
+                {
+                    ans = 0;
+                    break;
+                }
+                else if (req != i.first)
+                {
+                    ans = 0;
+                    break;
+                }
+            }
+        }
+        if (ans == 0)
+            break;
+    }
+
+    if (ans != 0)
+    {
+        // ans=1
+        // primes
+        set<int> primesocc, st(all(a));
+        for (auto num : a)
+        {
+            int i = num;
+
+            for (auto j : primes)
+            {
+                if (i % j == 0)
+                {
+                    primesocc.insert(j);
+                }
+            }
+        }
+        for (auto i : primesocc)
+        {
+            for (int j = 1;; j++)
+            {
+                int req = i * j - 1;
+                if (req > mx)
+                    break;
+                if (st.count(req))
+                {
+                    ans = 1;
+                    break;
+                }
+            }
+            if (ans == 1)
+                break;
+        }
+    }
+
+    cout << ans << endl;
+}
+
+void t4()
+{
+    ull a, b, r;
+    cin >> a >> b >> r;
+
+    if (a < b)
+        swap(a, b);
+
+    const int N = 63; // up to 2^63 > 1e18
+    bitset<N> bita(a), bitb(b);
+
+    int firstbit = -1;
+    for (int i = N - 1; i >= 0; i--)
+    {
+        if (bita[i] != bitb[i])
+        {
+            firstbit = i;
+            break;
+        }
+    }
+
+    ull result = 0;
+
+    if (firstbit != -1)
+    {
+        result += (1ULL << firstbit);
+    }
+
+    for (int i = firstbit - 1; i >= 0; i--)
+    {
+        ull mask = (1ULL << i);
+
+        if (bita[i] == 1)
+        {
+            if (bitb[i] == 0)
+            {
+                if (r >= mask)
+                {
+                    r -= mask;
+                    result -= mask;
+                }
+                else
+                {
+                    result += mask;
+                }
+            }
+        }
+        else
+        {
+            if (bitb[i] == 1)
+            {
+                result -= mask;
+            }
+        }
+    }
+
+    cout << result << "\n";
+}
+
+// wrong approach -> greedy fails
+bool ispossible(int n, vector<int> &v, int maxSum)
+{
+    int blockedsum = 0ll;
+    int i = 0;
+    while (i < n)
+    {
+        int subarraysum = 0ll;
+        while (i < n and subarraysum + v[i] <= maxSum)
+        {
+            subarraysum += v[i++];
+        }
+        if (i != n)
+        {
+            if (blockedsum + v[i] > maxSum)
+            {
+                return false;
+            }
+            blockedsum += v[i++];
+        }
+    }
+    return true;
+}
+
+// right approrach -> DP based check
+bool ispossibleDP(int n, const vector<int> &v, long long maxSum)
+{
+    if (v[0] > maxSum)
+        return false;
+
+    vector<long long> dp(n, LLONG_MAX);
+    dp[0] = v[0];
+
+    for (int i = 1; i < n; i++)
+    {
+        long long segmentSum = 0;
+        for (int j = i; j >= 0; j--)
+        {
+            segmentSum += v[j];
+            if (segmentSum > maxSum)
+                break;
+
+            long long prev = (j == 0) ? 0 : dp[j - 1];
+            if (prev != LLONG_MAX && prev + segmentSum <= maxSum)
+                dp[i] = min(dp[i], prev + segmentSum);
+        }
+    }
+
+    return dp[n] <= maxSum;
+}
+
+void t5()
+{
+    int n;
+    cin >> n;
+    vector<int> v(n);
+    for (int &x : v)
+        cin >> x;
+
+    long long low = *max_element(v.begin(), v.end());
+    long long high = accumulate(v.begin(), v.end(), 0LL);
+    long long res = high;
+    v.push_back(0);
+
+    while (low <= high)
+    {
+        long long mid = (low + high) / 2;
+        if (ispossibleDP(n, v, mid))
+        {
+            res = mid;
+            high = mid - 1;
+        }
+        else
+        {
+            low = mid + 1;
+        }
+    }
+
+    cout << res << endl;
+}
+
+char query(int index)
+{
+    cout << "? " << index << endl;
+    char ch;
+    cin >> ch;
+    return ch;
+    fflush(stdout);
+}
+
+void t6()
+{
+    int n;
+    cin >> n;
+
+    vector<int> v(n, 0);
+
+    // query for all indices
+    fl(i, n)
+    {
+        char ch;
+        while ((ch = query(i + 1)) != '=')
+        {
+            v[i] += (ch=='<') ? -1 : 1;
+        }
+    }
+
+    // take prefix sum
+    for (int i = 1; i < n; i++)
+    {
+        v[i] += v[i-1];
+    }
     
+    // maintain sorted order according to values
+    vector<pair<int,int>> vp;
+
+    fl(i, n){
+        vp.push_back({v[i], i});
+    }
+    sort(all(vp));
+
+    // build answer from sorted array
+    vector<int> ans(n);
+    fl(i, n){
+        ans[vp[i].second] = i+1; 
+    }
+
+    cout<<"! ";
+    print_vector(ans);
+    fflush(stdout);
 }
 
 int32_t main()
 {
+    sieve(2e5 + 1);
     int t = 1;
     cin >> t;
 
     while (t--)
     {
-        s5();
+        t6();
     }
 
     return 0;

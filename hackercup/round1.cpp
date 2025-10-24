@@ -677,15 +677,281 @@ void solve3(int casenum, std::ifstream &inFile, std::ofstream &outFile)
 void s1(int casenum, std::ifstream &inFile, std::ofstream &outFile)
 {
     outFile << "Case #" << casenum << ": ";
-    
+    int n;
+    inFile >> n;
+
+    vector<int> v(n);
+    fl(i, n)
+    {
+        inFile >> v[i];
+    }
+
+    int ans = 0;
+
+    for (int i = 1; i < n; i++)
+    {
+        ans = max(ans, abs(v[i - 1] - v[i]));
+    }
+
+    outFile << ans << endl;
+}
+
+void s2(int casenum, std::ifstream &inFile, std::ofstream &outFile)
+{
+    outFile << "Case #" << casenum << ": ";
+    int n;
+    inFile >> n;
+
+    vector<int> v(n);
+    vector<pair<int, int>> vp;
+    fl(i, n)
+    {
+        inFile >> v[i];
+        vp.push_back({v[i], i});
+    }
+
+    sort(all(vp));
+
+    int low = 0, high = 1e9, mid, ans;
+
+    while (low <= high)
+    {
+        mid = (low + high) / 2;
+        vector<int> vis(n, 0);
+
+        // outFile<<"mid: "<<mid<<endl;
+        int i = 0;
+        while (i < n)
+        {
+            if (vis[vp[i].second])
+            {
+                i++;
+                continue;
+            }
+
+            int currheight = v[vp[i].second];
+            // outFile<<currheight<<endl;
+            if (currheight > mid)
+            {
+                break;
+            }
+            vis[vp[i].second] = 1;
+            int p1 = vp[i].second - 1, p2 = vp[i].second + 1;
+
+            while (p1 >= 0 and !vis[p1] and abs(v[p1] - currheight) <= mid)
+            {
+                vis[p1] = 1;
+                currheight = v[p1--];
+            }
+
+            currheight = v[vp[i].second];
+            while (p2 < n and !vis[p2] and abs(v[p2] - currheight) <= mid)
+            {
+                vis[p2] = 1;
+                currheight = v[p2++];
+            }
+            // outFile<<p1<<" "<<p2<<endl;
+            i++;
+        }
+
+        bool possible = true;
+
+        for (auto j : vis)
+        {
+            if (j == 0)
+            {
+                possible = false;
+                break;
+            }
+        }
+
+        // outFile << mid << " " << possible << endl;
+
+        if (possible)
+        {
+            ans = mid;
+            high = mid - 1;
+        }
+        else
+        {
+            low = mid + 1;
+        }
+    }
+
+    outFile << ans << endl;
+}
+
+void s3(int casenum, std::ifstream &inFile, std::ofstream &outFile)
+{
+    outFile << "Case #" << casenum << ": ";
+    int n, a, b;
+    inFile >> n >> a >> b;
+
+    fl(i, n)
+    {
+        outFile << 1 << " ";
+    }
+
+    outFile << b << " ";
+
+    fl(i, n - 1)
+    {
+        outFile << 1 << " ";
+    }
+
+    outFile << endl;
+}
+
+void s4(int casenum, std::ifstream &inFile, std::ofstream &outFile)
+{
+    outFile << "Case #" << casenum << ": ";
+    int n, a, b;
+    inFile >> n >> a >> b;
+
+    fl(i, n)
+    {
+        outFile << 1 << " ";
+    }
+
+    outFile << b << " ";
+
+    fl(i, n - 1)
+    {
+        outFile << 1 << " ";
+    }
+
+    outFile << endl;
+}
+
+int subarrlen(int n)
+{
+    return (1ll * n * (n + 1) * (n + 2)) / 6;
+}
+
+void s6(int casenum, std::ifstream &inFile, std::ofstream &outFile)
+{
+    outFile << "Case #" << casenum << ": ";
+    int n;
+    inFile >> n;
+
+    vector<int> v(n);
+    fl(i, n)
+    {
+        inFile >> v[i];
+    }
+
+    if (n == 1)
+    {
+        if (v[0] == 0)
+        {
+            outFile << 0 << endl;
+        }
+        else
+        {
+            outFile << 1 << endl;
+        }
+        return;
+    }
+
+    vector<int> nextnonzero(n, n + 1);
+
+    for (int i = n - 1; i >= 0; i--)
+    {
+        if (v[i] != 0)
+        {
+            nextnonzero[i] = i;
+        }
+        else if (i != (n - 1))
+        {
+            nextnonzero[i] = nextnonzero[i + 1];
+        }
+    }
+
+    map<int, vector<int>> mp;
+    int total = subarrlen(n);
+
+    mp[0].push_back(-1);
+
+    int currxor = 0;
+
+    fl(i, n)
+    {
+        currxor ^= v[i];
+        if (mp.count(currxor))
+        {
+            for (auto j : mp[currxor])
+            {
+                int first = nextnonzero[j + 1], last = nextnonzero[i];
+                int len = last - first + 1;
+                if (len <= 0)
+                    continue;
+                total -= (i - j);
+                total += (len - 1);
+            }
+        }
+        mp[currxor].push_back(i);
+    }
+
+    outFile << total << endl;
+}
+
+void s7(int casenum, std::ifstream &inFile, std::ofstream &outFile)
+{
+    outFile << "Case #" << casenum << ": ";
+    int n;
+    inFile >> n;
+    vector<int> v(n);
+    for (int i = 0; i < n; ++i)
+        inFile >> v[i];
+    if (n == 1)
+    {
+        if (v[0] == 0)
+            outFile << 0 << endl;
+        else
+            outFile << 1 << endl;
+        return;
+    }
+    long long total = subarrlen(n);
+    unordered_map<int, vector<int>> mp;
+    mp.reserve(n * 2 + 10);
+    mp[0].push_back(-1);
+    int currxor = 0;
+
+    for (int i = 0; i < n; ++i)
+    {
+        currxor ^= v[i];
+        if (mp.count(currxor))
+        {
+            for (int j : mp[currxor])
+            {
+                int l = j + 1;
+                int r = i;
+                int origLen = r - l + 1;
+                while (l <= r and v[l] == 0)
+                {
+                    l++;
+                }
+                while (r >= l and v[r] == 0)
+                {
+                    r--;
+                }
+                int nonZeroCnt = (l > r) ? 0ll : r - l + 1;
+                int newContribution = (nonZeroCnt > 0 ? nonZeroCnt - 1 : 0ll);
+                total -= origLen;
+                total += newContribution;
+            }
+        }
+        mp[currxor].push_back(i);
+    }
+    outFile << total << endl;
 }
 
 signed main()
 {
-    sieve(100);
+    // sieve(100);
     // precompute_factorials(maxn);
-    std::string inputfile = "input.txt";
-    // std::string inputfile = "sum_41_chapter_2_input.txt";
+    // std::string inputfile = "input2.txt";
+    std::string inputfile = "narrowing_down_validation_input.txt";
     std::string outputfile = "output.txt";
 
     std::ifstream inFile(inputfile);
@@ -706,7 +972,7 @@ signed main()
     inFile >> t;
 
     for (int i = 1; i <= t; i++)
-        s1(i, inFile, outFile);
+        s7(i, inFile, outFile);
 
     outFile.close();
     std::cout << "Output successfully written to " + outputfile << endl;

@@ -1,9 +1,11 @@
 {
     "files.associations": {
+        "set": "cpp",
         "vector": "cpp",
         "iostream": "cpp",
-        "set": "cpp",
-        "bitset": "cpp",
+        "queue": "cpp",
+        "unordered_map": "cpp",
+        "string": "cpp",
         "unordered_set": "cpp"
     }
 }

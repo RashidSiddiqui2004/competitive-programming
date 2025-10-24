@@ -1,0 +1,1 @@
+{"name":"Local: minElementinSubarray","url":"/Users/rashidsiddiqui/Documents/cp/tle eliminators/minElementinSubarray.cpp","tests":[{"id":1761229386941,"input":"5 2\n10 4 1 3 4","output":"1 2 2 3 "}],"interactive":false,"memoryLimit":1024,"timeLimit":3000,"srcPath":"/Users/rashidsiddiqui/Documents/cp/tle eliminators/minElementinSubarray.cpp","group":"local","local":true}
