@@ -23,7 +23,7 @@
 #include <cassert>
 #include <random>
 #include <chrono>
-#include <cstdio> // ✅ Required for freopen
+#include <cstdio>
 
 using namespace std;
 
@@ -143,9 +143,9 @@ void solve2()
     cin >> n;
     int ans = 0;
 
-    int limit = sqrt(2*n + 10);
+    int limit = sqrt(2 * n + 10);
 
-    for (int a = 3; a <= min(n, limit); a+=2)
+    for (int a = 3; a <= min(n, limit); a += 2)
     {
         int b = ((a * a) - 1) / 2;
         int c = b + 1;
@@ -161,6 +161,57 @@ void solve2()
     cout << ans << endl;
 }
 
+// https://codeforces.com/problemset/problem/1873/F
+void solve3()
+{
+    int n, k;
+    cin >> n >> k;
+    vector<ll> fruits(n), height(n);
+
+    fl(i, n)
+    {
+        cin >> fruits[i];
+    }
+    fl(i, n)
+    {
+        cin >> height[i];
+    }
+
+    vector<vector<int>> segments;
+
+    int i = 0;
+    while (i < n)
+    {
+        vector<int> v = {fruits[i]};
+        int prev = height[i++];
+        while (i < n and (height[i - 1] % height[i]) == 0)
+        {
+            v.push_back(fruits[i++]);
+        }
+        segments.push_back(v);
+    }
+
+    int max_segmentlen = 0;
+    for (auto v : segments)
+    {
+        int m = v.size();
+        int l = 0, r = 0;
+        int currentSubarraySum = 0;
+        for (; r < m; r++)
+        {
+            currentSubarraySum += v[r];
+            while (l <= r and currentSubarraySum > k)
+            {
+                currentSubarraySum -= v[l++];
+            }
+            if (l <= r)
+                max_segmentlen = max(max_segmentlen, r-l+1);
+        }
+    }
+
+    cout<<max_segmentlen<<endl;
+}
+
 int32_t main()
 {
     int t;
@@ -168,7 +219,7 @@ int32_t main()
 
     while (t--)
     {
-        solve2();
+        solve3();
     }
 
     return 0;

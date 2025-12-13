@@ -3,7 +3,7 @@
 #include <map>
 using namespace std;
 
-// nums[i]>=0
+#define int long long
 
 int subarraySumLessthanEqualtoK(vector<int> &nums, int k)
 {
@@ -24,9 +24,19 @@ int subarraySumLessthanEqualtoK(vector<int> &nums, int k)
     return res;
 }
 
-int main()
+int32_t main()
 {
-    vector<int> v = {1, 2, 3, 3, 2};
-    int k = 5;
+    int n, k;
+    cin >> n >> k;
+    vector<int> v(n);
+    for (int i = 0; i < n; i++)
+    {
+        cin >> v[i];
+    }
+
     cout << subarraySumLessthanEqualtoK(v, k);
+
+    // vector<int> v = {1, 2, 3, 3, 2};
+    // int k = 5;
+    // cout << subarraySumLessthanEqualtoK(v, k);
 }
