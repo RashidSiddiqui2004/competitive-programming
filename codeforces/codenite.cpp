@@ -1413,64 +1413,6 @@ void r3()
     cout << endl;
 }
 
-ll mod_ajeeb = 998244353;
-int totalFibSequences = 0ll;
-
-int helper(int node, vector<vector<int>> &adj, vector<int> &values,
-           vector<bool> &vis, int a = -1, int b = -1)
-{
-    int continueAns = 0, newBeginningAns = 0;
-    vis[node] = 1;
-    for (auto i : adj[node])
-    {
-        if (vis[i])
-        {
-            continue;
-        }
-        if (b == -1)
-        {
-            continueAns += (1 + helper(i, adj, values, vis, a, values[i])) % mod_ajeeb;
-        }
-        else if (values[i] == (a + b))
-        {
-            continueAns += (1 + helper(i, adj, values, vis, b, a + b)) % mod_ajeeb;
-        }
-        newBeginningAns += (1 + helper(i, adj, values, vis, values[i], -1)) % mod_ajeeb;
-    }
-    totalFibSequences += newBeginningAns % mod_ajeeb;
-    return continueAns % mod_ajeeb;
-}
-
-void r4()
-{
-    totalFibSequences = 0ll;
-    int n, m;
-    cin >> n >> m;
-    vector<vector<int>> adj(n);
-
-    vector<int> values(n);
-    read_vector(values);
-
-    fl(i, m)
-    {
-        int u, v;
-        cin >> u >> v;
-        adj[u - 1].push_back(v - 1);
-    }
-
-    vector<bool> vis(n, false);
-
-    fl(i, n)
-    {
-        if (!vis[i])
-        {
-            totalFibSequences += helper(i, adj, values, vis, values[i], -1) % mod_ajeeb;
-        }
-    }
-
-    cout << totalFibSequences << endl;
-}
-
 int32_t main()
 {
     int t = 1;
