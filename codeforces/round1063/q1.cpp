@@ -337,385 +337,92 @@ public:
     }
 };
 
-// bool a1(unsigned long long n)
-// {
-//     if (n <= 4)
-//     {
-//         return 1;
-//     }
-
-//     if (n & 1ll)
-//     {
-//         return 0;
-//     }
-
-//     int setbits = 0;
-//     for (int i = 0; i < 64; i++)
-//     {
-//         if ((n & (1 << i)) != 0)
-//         {
-//             setbits++;
-//             if (setbits == 2)
-//             {
-//                 break;
-//             }
-//         }
-//     }
-
-//     if (setbits == 1)
-//     {
-//         return 1;
-//     }
-
-//     if (((3 ^ n) + 1ll) == n)
-//     {
-//         return a1(n / 2);
-//     }
-
-//     return a1(n / 2) || a1((3 ^ n) + 1ll);
-// }
-
-unsigned int nextPowerOf2(unsigned int n)
-{
-    if (n == 0)
-        return 1;
-
-    n--;
-    n |= n >> 1;
-    n |= n >> 2;
-    n |= n >> 4;
-    n |= n >> 8;
-    n |= n >> 16;
-
-    return n + 1;
-}
-
-const int ulim = 1e6;
-unordered_map<int, int> dp;
-
-int a1(unsigned long long n)
-{
-    if (n == 1)
-    {
-        return 0;
-    }
-    if (n <= 3)
-    {
-        return 1;
-    }
-
-    if (dp.count(n))
-    {
-        return dp[n];
-    }
-
-    if (n & 1ll)
-    {
-        return dp[n] = ulim;
-    }
-
-    int setbits = 0;
-    int lastsetbit = -1;
-
-    for (int i = 0; i < 32; i++)
-    {
-        if ((n & (1ll << i)) != 0)
-        {
-            setbits++;
-            lastsetbit = i;
-            if (setbits == 2)
-            {
-                break;
-            }
-        }
-    }
-
-    if (setbits == 1)
-    {
-        return dp[n] = lastsetbit;
-    }
-
-    int val1 = a1(n / 2);
-
-    if ((n & 2) != 0)
-    {
-        if (val1 == ulim)
-        {
-            return dp[n] = ulim;
-        }
-        return dp[n] = 1 + val1;
-    }
-
-    int nextpower = nextPowerOf2(n);
-    int diff = nextpower - n;
-
-    int val2 = ulim;
-
-    if (diff % 4 == 0)
-    {
-        val2 = (diff / 4) + a1(nextpower);
-    }
-
-    return dp[n] = (min(val1, val2) == ulim) ? ulim : 1 + min(val1, val2);
-}
-
-void a2()
+void solve()
 {
     int n;
     cin >> n;
 
-    vector<int> v(n);
-    read_vector(v);
+    vector<vector<int>> grid(2, vector<int>(n));
 
-    vector<vector<int>> positions(n + 1);
+    read_vector(grid[0]);
+    read_vector(grid[1]);
 
-    fl(i, n)
+    int result = 0ll;
+
+    // {min, max}
+    vector<pair<int, int>> prefix(n), suffix(n);
+    prefix[0] = {grid[0][0], grid[0][0]};
+
+    for (int i = 1; i < n; i++)
     {
-        positions[v[i]].push_back(i);
+        prefix[i].first = min(prefix[i - 1].first, grid[0][i]);
+        prefix[i].second = max(prefix[i - 1].second, grid[0][i]);
     }
 
-    vector<int> ans;
-    int start = 0;
+    suffix[n - 1] = {grid[1][n - 1], grid[1][n - 1]};
 
-    while (start < n)
+    for (int i = n - 2; i >= 0; i--)
     {
-        int maximumIndex = start;
-        int currentmex = 0;
+        suffix[i].first = min(suffix[i + 1].first, grid[1][i]);
+        suffix[i].second = max(suffix[i + 1].second, grid[1][i]);
+    }
 
-        for (; currentmex <= n; currentmex++)
+    for (int i = 1; i <= 2 * n; i++)
+    {
+        int low = i, high = 2 * n, mid, ans = -1;
+
+        while (low <= high)
         {
-            vector<int> myPositions = positions[currentmex];
-            int index = lower_bound(myPositions.begin(), myPositions.end(), start) - myPositions.begin();
-            // check if the element is not found
-            if (index == myPositions.size())
+            mid = (low + high) / 2;
+
+            int maxright_low = 0, maxright_high = n - 1, maxright_mid, maxright = -1;
+            while (maxright_low <= maxright_high)
             {
-                myPositions.clear();
-                positions[currentmex] = myPositions;
-                break;
+                maxright_mid = (maxright_low + maxright_high) / 2;
+                if (prefix[maxright_mid].first >= i && prefix[maxright_mid].second <= mid)
+                {
+                    maxright = maxright_mid;
+                    maxright_low = maxright_mid + 1;
+                }
+                else
+                {
+                    maxright_high = maxright_mid - 1;
+                }
+            }
+
+            int minleft_low = 0, minleft_high = n - 1, minleft_mid, minleft = n+1;
+            while (minleft_low <= minleft_high)
+            {
+                minleft_mid = (minleft_low + minleft_high) / 2;
+                if (suffix[minleft_mid].first >= i && suffix[minleft_mid].second <= mid)
+                {
+                    minleft = minleft_mid;
+                    minleft_high = minleft_mid - 1;
+                }
+                else
+                {
+                    minleft_low = minleft_mid + 1;
+                }
+            }
+
+            if (maxright >= minleft)
+            {
+                ans = mid;
+                high = mid - 1;
             }
             else
             {
-                maximumIndex = max(maximumIndex, myPositions[index]);
-                myPositions = vector<int>(myPositions.begin() + index, myPositions.end());
-                positions[currentmex] = myPositions;
+                low = mid + 1;
             }
         }
 
-        start = maximumIndex + 1;
-        ans.push_back(currentmex);
+        // cout<<i<<' '<<ans<<endl;
+
+        if (ans != -1)
+            result += (2ll * n - ans + 1);
     }
 
-    cout << ans.size() << endl;
-    print_vector(ans);
-}
-
-void a3()
-{
-    // int n = 10;
-    // vector<int> v = {0, 0, 2, 1, 1, 1, 0, 0, 1, 1};
-
-    int n;
-    cin >> n;
-
-    vector<int> v(n);
-    read_vector(v);
-
-    vector<int> suffixmex(n);
-
-    vector<bool> ismarked(n, 0);
-    int currmex = 0;
-
-    for (int i = n - 1; i >= 0; i--)
-    {
-        ismarked[v[i]] = 1;
-        while (ismarked[currmex])
-        {
-            currmex++;
-        }
-        suffixmex[i] = currmex;
-    }
-
-    vector<int> ans;
-    int start = 0;
-
-    while (start < n)
-    {
-        int requiredmex = suffixmex[start];
-        int currentmex = 0;
-
-        vector<bool> isPresent(n, 0);
-        isPresent[v[start++]] = 1;
-        while (isPresent[currentmex])
-        {
-            currentmex++;
-        }
-
-        for (; currentmex < requiredmex and start < n;)
-        {
-            isPresent[v[start++]] = 1;
-            while (isPresent[currentmex])
-            {
-                currentmex++;
-            }
-        }
-        ans.push_back(requiredmex);
-    }
-
-    cout << ans.size() << endl;
-    print_vector(ans);
-}
-
-void s1()
-{
-    int n;
-    cin >> n;
-    string s;
-    cin >> s;
-
-    bool c1 = s.find("2026") != string::npos;
-    bool c2 = s.find("2025") == string::npos;
-
-    if (c1 || c2)
-    {
-        cout << 0 << endl;
-    }
-    else
-    {
-
-        cout << 1 << endl;
-    }
-}
-
-bool isvalid(int a, int b, int mid)
-{
-    int curra = a, currb = b;
-    bool valid = true;
-
-    for (int i = 0; i < mid; i++)
-    {
-        if (i % 2 == 1)
-        {
-            curra -= pow(2, i);
-            if (curra < 0)
-            {
-                valid = false;
-                break;
-            }
-        }
-        else
-        {
-            currb -= pow(2, i);
-            if (currb < 0)
-            {
-                valid = false;
-                break;
-            }
-        }
-    }
-
-    if (valid)
-        return true;
-    valid = true;
-
-    curra = a, currb = b;
-
-    for (int i = 0; i < mid; i++)
-    {
-        if (i % 2 == 0)
-        {
-            curra -= pow(2, i);
-            if (curra < 0)
-            {
-                valid = false;
-                break;
-            }
-        }
-        else
-        {
-            currb -= pow(2, i);
-            if (currb < 0)
-            {
-                valid = false;
-                break;
-            }
-        }
-    }
-
-    return valid;
-}
-
-void s2()
-{
-    int a, b;
-    cin >> a >> b;
-
-    ll low = 0, high = 1e4, mid, ans = 0;
-
-    while (low <= high)
-    {
-        mid = (low + high) / 2;
-        if (isvalid(a, b, mid))
-        {
-            ans = mid;
-            low = mid + 1;
-        }
-        else
-        {
-            high = mid - 1;
-        }
-    }
-
-    cout << ans << endl;
-}
-
-int helper(vector<int> x, vector<int> y)
-{
-    int n = x.size();
-
-    vector<int> y2(2 * n);
-    for (int i = 0; i < n; ++i)
-    {
-        y2[i] = y[i];
-        y2[i + n] = y[i];
-    }
-
-    int ans = 0;
-    for (int s = 0; s < n; ++s)
-    {
-        bool chk = true;
-        for (int t = 0; t < n; ++t)
-        {
-            if (!(x[t] < y2[t + s]))
-            {
-                chk = false;
-                break;
-            }
-        }
-        if (chk)
-            ++ans;
-    }
-    return ans;
-}
-
-void s3()
-{
-    int n;
-    cin >> n;
-    vector<int> a(n), b(n), c(n);
-    read_vector(a);
-    read_vector(b);
-    read_vector(c);
-
-    int ab = helper(a, b);
-    int bc = helper(b, c);
-    int ans = 1ll * n * ab * bc;
-
-    cout << ans << '\n';
-}
-
-void s4()
-{
-    
+    cout << result << endl;
 }
 
 int32_t main()
@@ -728,7 +435,7 @@ int32_t main()
 
     while (t--)
     {
-        s4();
+        solve();
     }
 
     khalaas

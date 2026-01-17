@@ -83,8 +83,10 @@ int SumofDistinctElementinsubarrays(int n, vector<int> &v)
     int ans = 0;
     int totalSubarrays = (n * (n + 1)) / 2;
 
-    for (auto [element, positionsVector] : positionsMap)
+    for (auto& pair : positionsMap)
     {
+        int element = pair.first;
+        vector<int>& positionsVector = pair.second;
         int m = positionsVector.size();
         int totalAbsentSubarrays = (positionsVector[0] * (positionsVector[0] + 1)) / 2;
         for (int i = 0; i < m - 1; i++)
@@ -100,31 +102,82 @@ int SumofDistinctElementinsubarrays(int n, vector<int> &v)
     return ans;
 }
 
+class Solution
+{
+public:
+    bool validWordAbbreviation(string word, string abbr)
+    {
+        int n = word.size(), m = abbr.size();
+        int i = 0, j = 0;
+
+        while (i < n)
+        {
+            if (j == m)
+            {
+                return false;
+            }
+            while (i < n and j < m and word[i] == abbr[j])
+            {
+                ++i, ++j;
+            }
+            if (i == n)
+            {
+                break;
+            }
+            if (j < m and (abbr[j] >= '1' and abbr[j] <= '9'))
+            {
+                int len = abbr[j++] - '0';
+                while (j < m and abbr[j] >= '0' and abbr[j] <= '9')
+                {
+                    len *= 10;
+                    len += abbr[j++] - '0';
+                }
+                i += len;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        if (i != n || j != m)
+        {
+            return false;
+        }
+
+        return true;
+    }
+};
+
 int main()
 {
+
+    Solution *sol = new Solution();
+    cout << sol->validWordAbbreviation("apple", "a3e") << endl;
+
     // string s;
     // cin >> s;
 
     // cout << longestSelfSufficientSubstring(s);
 
-    int n;
-    cin >> n;
+    // int n;
+    // cin >> n;
 
-    vector<int> v(n);
+    // vector<int> v(n);
 
-    for (size_t i = 0; i < n; i++)
-    {
-        cin >> v[i];
-    }
+    // for (size_t i = 0; i < n; i++)
+    // {
+    //     cin >> v[i];
+    // }
 
-    bool isvalid = SumofDistinctElementinsubarrays(n, v) == verifySumofDistinctElementinsubarrays(n, v);
+    // bool isvalid = SumofDistinctElementinsubarrays(n, v) == verifySumofDistinctElementinsubarrays(n, v);
 
-    if(isvalid){
-        cout<<"✅ Test passed";
-    }
-    else{
-        cout<<"❌ Test failed";
-    }
+    // if(isvalid){
+    //     cout<<"✅ Test passed";
+    // }
+    // else{
+    //     cout<<"❌ Test failed";
+    // }
 
     return 0;
 }

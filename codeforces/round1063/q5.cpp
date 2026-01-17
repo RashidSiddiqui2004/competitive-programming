@@ -337,398 +337,191 @@ public:
     }
 };
 
-// bool a1(unsigned long long n)
-// {
-//     if (n <= 4)
-//     {
-//         return 1;
-//     }
-
-//     if (n & 1ll)
-//     {
-//         return 0;
-//     }
-
-//     int setbits = 0;
-//     for (int i = 0; i < 64; i++)
-//     {
-//         if ((n & (1 << i)) != 0)
-//         {
-//             setbits++;
-//             if (setbits == 2)
-//             {
-//                 break;
-//             }
-//         }
-//     }
-
-//     if (setbits == 1)
-//     {
-//         return 1;
-//     }
-
-//     if (((3 ^ n) + 1ll) == n)
-//     {
-//         return a1(n / 2);
-//     }
-
-//     return a1(n / 2) || a1((3 ^ n) + 1ll);
-// }
-
-unsigned int nextPowerOf2(unsigned int n)
+void solve()
 {
-    if (n == 0)
-        return 1;
+    int n;
+    cin >> n;
 
-    n--;
-    n |= n >> 1;
-    n |= n >> 2;
-    n |= n >> 4;
-    n |= n >> 8;
-    n |= n >> 16;
+    vector<vector<int>> adj(n);
+    vector<int> degree(n);
 
-    return n + 1;
-}
-
-const int ulim = 1e6;
-unordered_map<int, int> dp;
-
-int a1(unsigned long long n)
-{
-    if (n == 1)
+    fl(i, n - 1)
     {
-        return 0;
+        int u, v;
+        cin >> u >> v;
+        --u, --v;
+        adj[u].push_back(v);
+        adj[v].push_back(u);
+        degree[u]++;
+        degree[v]++;
     }
+
     if (n <= 3)
     {
-        return 1;
+        cout << 0 << endl;
+        return;
     }
 
-    if (dp.count(n))
+    int c1 = 0;
+    for (auto i : degree)
     {
-        return dp[n];
+        if (i == 1)
+            ++c1;
     }
 
-    if (n & 1ll)
-    {
-        return dp[n] = ulim;
-    }
-
-    int setbits = 0;
-    int lastsetbit = -1;
-
-    for (int i = 0; i < 32; i++)
-    {
-        if ((n & (1ll << i)) != 0)
-        {
-            setbits++;
-            lastsetbit = i;
-            if (setbits == 2)
-            {
-                break;
-            }
-        }
-    }
-
-    if (setbits == 1)
-    {
-        return dp[n] = lastsetbit;
-    }
-
-    int val1 = a1(n / 2);
-
-    if ((n & 2) != 0)
-    {
-        if (val1 == ulim)
-        {
-            return dp[n] = ulim;
-        }
-        return dp[n] = 1 + val1;
-    }
-
-    int nextpower = nextPowerOf2(n);
-    int diff = nextpower - n;
-
-    int val2 = ulim;
-
-    if (diff % 4 == 0)
-    {
-        val2 = (diff / 4) + a1(nextpower);
-    }
-
-    return dp[n] = (min(val1, val2) == ulim) ? ulim : 1 + min(val1, val2);
-}
-
-void a2()
-{
-    int n;
-    cin >> n;
-
-    vector<int> v(n);
-    read_vector(v);
-
-    vector<vector<int>> positions(n + 1);
-
+    int maxleafneighbors = 0;
     fl(i, n)
     {
-        positions[v[i]].push_back(i);
-    }
-
-    vector<int> ans;
-    int start = 0;
-
-    while (start < n)
-    {
-        int maximumIndex = start;
-        int currentmex = 0;
-
-        for (; currentmex <= n; currentmex++)
+        int curr = 0;
+        for (auto k : adj[i])
         {
-            vector<int> myPositions = positions[currentmex];
-            int index = lower_bound(myPositions.begin(), myPositions.end(), start) - myPositions.begin();
-            // check if the element is not found
-            if (index == myPositions.size())
-            {
-                myPositions.clear();
-                positions[currentmex] = myPositions;
-                break;
-            }
-            else
-            {
-                maximumIndex = max(maximumIndex, myPositions[index]);
-                myPositions = vector<int>(myPositions.begin() + index, myPositions.end());
-                positions[currentmex] = myPositions;
-            }
+            if (degree[k] == 1)
+                curr++;
         }
-
-        start = maximumIndex + 1;
-        ans.push_back(currentmex);
+        maxleafneighbors = max(maxleafneighbors, curr);
     }
 
-    cout << ans.size() << endl;
-    print_vector(ans);
+    cout << (c1 - maxleafneighbors) << endl;
 }
 
-void a3()
-{
-    // int n = 10;
-    // vector<int> v = {0, 0, 2, 1, 1, 1, 0, 0, 1, 1};
-
-    int n;
-    cin >> n;
-
-    vector<int> v(n);
-    read_vector(v);
-
-    vector<int> suffixmex(n);
-
-    vector<bool> ismarked(n, 0);
-    int currmex = 0;
-
-    for (int i = n - 1; i >= 0; i--)
-    {
-        ismarked[v[i]] = 1;
-        while (ismarked[currmex])
-        {
-            currmex++;
-        }
-        suffixmex[i] = currmex;
-    }
-
-    vector<int> ans;
-    int start = 0;
-
-    while (start < n)
-    {
-        int requiredmex = suffixmex[start];
-        int currentmex = 0;
-
-        vector<bool> isPresent(n, 0);
-        isPresent[v[start++]] = 1;
-        while (isPresent[currentmex])
-        {
-            currentmex++;
-        }
-
-        for (; currentmex < requiredmex and start < n;)
-        {
-            isPresent[v[start++]] = 1;
-            while (isPresent[currentmex])
-            {
-                currentmex++;
-            }
-        }
-        ans.push_back(requiredmex);
-    }
-
-    cout << ans.size() << endl;
-    print_vector(ans);
-}
-
-void s1()
+void solve2()
 {
     int n;
     cin >> n;
-    string s;
-    cin >> s;
+    vector<int> a(n);
+    vector<int> pos(n + 1);
 
-    bool c1 = s.find("2026") != string::npos;
-    bool c2 = s.find("2025") == string::npos;
-
-    if (c1 || c2)
+    for (size_t i = 0; i < n; i++)
     {
-        cout << 0 << endl;
+        cin >> a[i];
+        pos[a[i]] = i;
     }
-    else
-    {
 
-        cout << 1 << endl;
+    int mininversions = 0;
+    vector<int> deleted(n, 0);
+
+    for (int i = 1; i <= n; i++)
+    {
+        int index = pos[i];
+        // check elements before pos[i] and after a[i]
+        int before = 0, after = 0;
+        for (int j = 0; j < index; j++)
+        {
+            if (!deleted[j])
+            {
+                before++;
+            }
+        }
+        for (int j = index + 1; j < n; j++)
+        {
+            if (!deleted[j])
+            {
+                after++;
+            }
+        }
+        deleted[index] = true;
+        mininversions += min(before, after);
     }
+
+    cout << mininversions << endl;
 }
 
-bool isvalid(int a, int b, int mid)
+string hiddens = "11010101001001";
+// string hiddens = "01001";
+// string hiddens = "110";
+
+int jury(int r)
 {
-    int curra = a, currb = b;
-    bool valid = true;
-
-    for (int i = 0; i < mid; i++)
-    {
-        if (i % 2 == 1)
-        {
-            curra -= pow(2, i);
-            if (curra < 0)
-            {
-                valid = false;
-                break;
-            }
-        }
-        else
-        {
-            currb -= pow(2, i);
-            if (currb < 0)
-            {
-                valid = false;
-                break;
-            }
-        }
-    }
-
-    if (valid)
-        return true;
-    valid = true;
-
-    curra = a, currb = b;
-
-    for (int i = 0; i < mid; i++)
-    {
-        if (i % 2 == 0)
-        {
-            curra -= pow(2, i);
-            if (curra < 0)
-            {
-                valid = false;
-                break;
-            }
-        }
-        else
-        {
-            currb -= pow(2, i);
-            if (currb < 0)
-            {
-                valid = false;
-                break;
-            }
-        }
-    }
-
-    return valid;
-}
-
-void s2()
-{
-    int a, b;
-    cin >> a >> b;
-
-    ll low = 0, high = 1e4, mid, ans = 0;
-
-    while (low <= high)
-    {
-        mid = (low + high) / 2;
-        if (isvalid(a, b, mid))
-        {
-            ans = mid;
-            low = mid + 1;
-        }
-        else
-        {
-            high = mid - 1;
-        }
-    }
-
-    cout << ans << endl;
-}
-
-int helper(vector<int> x, vector<int> y)
-{
-    int n = x.size();
-
-    vector<int> y2(2 * n);
-    for (int i = 0; i < n; ++i)
-    {
-        y2[i] = y[i];
-        y2[i + n] = y[i];
-    }
-
     int ans = 0;
-    for (int s = 0; s < n; ++s)
+    int cnt0 = 0;
+    for (int i = 0; i <= r; i++)
     {
-        bool chk = true;
-        for (int t = 0; t < n; ++t)
-        {
-            if (!(x[t] < y2[t + s]))
-            {
-                chk = false;
-                break;
-            }
-        }
-        if (chk)
-            ++ans;
+        if (hiddens[i] == '0')
+            cnt0++;
+        else
+            ans += cnt0;
     }
     return ans;
 }
 
-void s3()
+int query(int r)
+{
+    cout << "? 1 " << r << endl;
+    int ans;
+    cin >> ans;
+    // ans = jury(r - 1);
+    return ans;
+}
+
+void solve3()
 {
     int n;
     cin >> n;
-    vector<int> a(n), b(n), c(n);
-    read_vector(a);
-    read_vector(b);
-    read_vector(c);
 
-    int ab = helper(a, b);
-    int bc = helper(b, c);
-    int ans = 1ll * n * ab * bc;
+    vector<int> response(n + 1, -1);
+    response[1] = 0;
 
-    cout << ans << '\n';
-}
+    // find the first 1 in the string
+    int low = 1, high = n, mid, posfirst1 = -1;
+    while (low <= high)
+    {
+        mid = (low + high) / 2;
+        if (response[mid] == -1)
+            response[mid] = query(mid);
 
-void s4()
-{
-    
+        if (response[mid] > 0)
+        {
+            posfirst1 = mid;
+            high = mid - 1;
+        }
+        else
+        {
+            low = mid + 1;
+        }
+    }
+
+    if (posfirst1 == -1)
+    {
+        cout << "! IMPOSSIBLE" << endl;
+        return;
+    }
+
+    string ans(n, '0');
+
+    int numzerosinprefix = response[posfirst1];
+
+    for (int i = 0; i < posfirst1 - 1 - numzerosinprefix; i++)
+    {
+        ans[i] = '1';
+    }
+
+    ans[posfirst1 - 1] = '1';
+
+    for (int i = posfirst1 + 1; i <= n; i++)
+    {
+        if (response[i] == -1)
+            response[i] = query(i);
+
+        if (response[i - 1] < response[i])
+        {
+            ans[i - 1] = '1';
+        }
+    }
+
+    cout << "! " << ans << endl;
 }
 
 int32_t main()
 {
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
+    // ios::sync_with_stdio(false);
+    // cin.tie(nullptr);
 
     int t = 1;
     cin >> t;
 
     while (t--)
     {
-        s4();
+        solve3();
     }
 
     khalaas

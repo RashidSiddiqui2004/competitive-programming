@@ -337,398 +337,247 @@ public:
     }
 };
 
-// bool a1(unsigned long long n)
-// {
-//     if (n <= 4)
-//     {
-//         return 1;
-//     }
+// finding the centroid of the tree
 
-//     if (n & 1ll)
-//     {
-//         return 0;
-//     }
+// =============== Centroid of the tree ==================
+// A node of the tree is said to be centroid, if deleting this node,
+// all the remaining connected components have size <= half of the
+// original tree size before deletion of the centroid.
 
-//     int setbits = 0;
-//     for (int i = 0; i < 64; i++)
-//     {
-//         if ((n & (1 << i)) != 0)
-//         {
-//             setbits++;
-//             if (setbits == 2)
-//             {
-//                 break;
-//             }
-//         }
-//     }
+map<pair<int, int>, int> memo;
+vector<bool> isNodeValid;
 
-//     if (setbits == 1)
-//     {
-//         return 1;
-//     }
-
-//     if (((3 ^ n) + 1ll) == n)
-//     {
-//         return a1(n / 2);
-//     }
-
-//     return a1(n / 2) || a1((3 ^ n) + 1ll);
-// }
-
-unsigned int nextPowerOf2(unsigned int n)
+int dfs(vector<vector<int>> &adj, int node, int parent)
 {
-    if (n == 0)
-        return 1;
-
-    n--;
-    n |= n >> 1;
-    n |= n >> 2;
-    n |= n >> 4;
-    n |= n >> 8;
-    n |= n >> 16;
-
-    return n + 1;
+    // if (memo.count({node, parent}))
+    // {
+    //     return memo[{node, parent}];
+    // }
+    int ans = 1;
+    for (auto i : adj[node])
+    {
+        if (i != parent and isNodeValid[i])
+        {
+            ans = max(ans, 1 + dfs(adj, i, node));
+        }
+    }
+    return memo[{node, parent}] = ans;
 }
 
-const int ulim = 1e6;
-unordered_map<int, int> dp;
-
-int a1(unsigned long long n)
+int getCentroidOfTree(vector<vector<int>> &adj, vector<int> &degree, int numNodes)
 {
-    if (n == 1)
-    {
-        return 0;
-    }
-    if (n <= 3)
-    {
-        return 1;
-    }
+    int inf = numNodes * 2;
+    vector<int> minComponentSize(numNodes + 1, inf);
 
-    if (dp.count(n))
-    {
-        return dp[n];
-    }
+    int centroid = -1, maxSize = 0;
 
-    if (n & 1ll)
+    for (int node = 1; node <= numNodes; node++)
     {
-        return dp[n] = ulim;
-    }
-
-    int setbits = 0;
-    int lastsetbit = -1;
-
-    for (int i = 0; i < 32; i++)
-    {
-        if ((n & (1ll << i)) != 0)
+        if (!isNodeValid[node])
         {
-            setbits++;
-            lastsetbit = i;
-            if (setbits == 2)
+            continue;
+        }
+        if (degree[node] <= 1)
+        {
+            minComponentSize[node] = 0;
+        }
+        for (auto neighbor : adj[node])
+        {
+            if (isNodeValid[neighbor])
             {
-                break;
+                minComponentSize[node] = min(minComponentSize[node], dfs(adj, neighbor, node));
             }
         }
-    }
-
-    if (setbits == 1)
-    {
-        return dp[n] = lastsetbit;
-    }
-
-    int val1 = a1(n / 2);
-
-    if ((n & 2) != 0)
-    {
-        if (val1 == ulim)
+        // cout << node << "-> " << degree[node] << ' ' << minComponentSize[node] << endl;
+        if (minComponentSize[node] != inf && minComponentSize[node] > maxSize)
         {
-            return dp[n] = ulim;
+            maxSize = minComponentSize[node];
+            centroid = node;
         }
-        return dp[n] = 1 + val1;
     }
 
-    int nextpower = nextPowerOf2(n);
-    int diff = nextpower - n;
-
-    int val2 = ulim;
-
-    if (diff % 4 == 0)
-    {
-        val2 = (diff / 4) + a1(nextpower);
-    }
-
-    return dp[n] = (min(val1, val2) == ulim) ? ulim : 1 + min(val1, val2);
+    return centroid;
 }
 
-void a2()
+void removeNodes(vector<vector<int>> &adj, int node, int parent)
 {
-    int n;
-    cin >> n;
-
-    vector<int> v(n);
-    read_vector(v);
-
-    vector<vector<int>> positions(n + 1);
-
-    fl(i, n)
+    isNodeValid[node] = false;
+    for (auto neighbor : adj[node])
     {
-        positions[v[i]].push_back(i);
-    }
-
-    vector<int> ans;
-    int start = 0;
-
-    while (start < n)
-    {
-        int maximumIndex = start;
-        int currentmex = 0;
-
-        for (; currentmex <= n; currentmex++)
+        if (neighbor != parent && isNodeValid[neighbor])
         {
-            vector<int> myPositions = positions[currentmex];
-            int index = lower_bound(myPositions.begin(), myPositions.end(), start) - myPositions.begin();
-            // check if the element is not found
-            if (index == myPositions.size())
-            {
-                myPositions.clear();
-                positions[currentmex] = myPositions;
-                break;
-            }
-            else
-            {
-                maximumIndex = max(maximumIndex, myPositions[index]);
-                myPositions = vector<int>(myPositions.begin() + index, myPositions.end());
-                positions[currentmex] = myPositions;
-            }
+            removeNodes(adj, neighbor, node);
         }
-
-        start = maximumIndex + 1;
-        ans.push_back(currentmex);
     }
-
-    cout << ans.size() << endl;
-    print_vector(ans);
 }
 
-void a3()
+int query1(int k, vector<int> &nodes, int singleNode = -1)
 {
-    // int n = 10;
-    // vector<int> v = {0, 0, 2, 1, 1, 1, 0, 0, 1, 1};
-
-    int n;
-    cin >> n;
-
-    vector<int> v(n);
-    read_vector(v);
-
-    vector<int> suffixmex(n);
-
-    vector<bool> ismarked(n, 0);
-    int currmex = 0;
-
-    for (int i = n - 1; i >= 0; i--)
+    cout << "? 1 " << k << ' ';
+    if (!nodes.empty())
     {
-        ismarked[v[i]] = 1;
-        while (ismarked[currmex])
+        for (auto i : nodes)
         {
-            currmex++;
+            cout << i << ' ';
         }
-        suffixmex[i] = currmex;
-    }
-
-    vector<int> ans;
-    int start = 0;
-
-    while (start < n)
-    {
-        int requiredmex = suffixmex[start];
-        int currentmex = 0;
-
-        vector<bool> isPresent(n, 0);
-        isPresent[v[start++]] = 1;
-        while (isPresent[currentmex])
-        {
-            currentmex++;
-        }
-
-        for (; currentmex < requiredmex and start < n;)
-        {
-            isPresent[v[start++]] = 1;
-            while (isPresent[currentmex])
-            {
-                currentmex++;
-            }
-        }
-        ans.push_back(requiredmex);
-    }
-
-    cout << ans.size() << endl;
-    print_vector(ans);
-}
-
-void s1()
-{
-    int n;
-    cin >> n;
-    string s;
-    cin >> s;
-
-    bool c1 = s.find("2026") != string::npos;
-    bool c2 = s.find("2025") == string::npos;
-
-    if (c1 || c2)
-    {
-        cout << 0 << endl;
     }
     else
     {
-
-        cout << 1 << endl;
-    }
-}
-
-bool isvalid(int a, int b, int mid)
-{
-    int curra = a, currb = b;
-    bool valid = true;
-
-    for (int i = 0; i < mid; i++)
-    {
-        if (i % 2 == 1)
-        {
-            curra -= pow(2, i);
-            if (curra < 0)
-            {
-                valid = false;
-                break;
-            }
-        }
-        else
-        {
-            currb -= pow(2, i);
-            if (currb < 0)
-            {
-                valid = false;
-                break;
-            }
-        }
+        cout << singleNode;
     }
 
-    if (valid)
-        return true;
-    valid = true;
-
-    curra = a, currb = b;
-
-    for (int i = 0; i < mid; i++)
-    {
-        if (i % 2 == 0)
-        {
-            curra -= pow(2, i);
-            if (curra < 0)
-            {
-                valid = false;
-                break;
-            }
-        }
-        else
-        {
-            currb -= pow(2, i);
-            if (currb < 0)
-            {
-                valid = false;
-                break;
-            }
-        }
-    }
-
-    return valid;
-}
-
-void s2()
-{
-    int a, b;
-    cin >> a >> b;
-
-    ll low = 0, high = 1e4, mid, ans = 0;
-
-    while (low <= high)
-    {
-        mid = (low + high) / 2;
-        if (isvalid(a, b, mid))
-        {
-            ans = mid;
-            low = mid + 1;
-        }
-        else
-        {
-            high = mid - 1;
-        }
-    }
-
-    cout << ans << endl;
-}
-
-int helper(vector<int> x, vector<int> y)
-{
-    int n = x.size();
-
-    vector<int> y2(2 * n);
-    for (int i = 0; i < n; ++i)
-    {
-        y2[i] = y[i];
-        y2[i + n] = y[i];
-    }
-
-    int ans = 0;
-    for (int s = 0; s < n; ++s)
-    {
-        bool chk = true;
-        for (int t = 0; t < n; ++t)
-        {
-            if (!(x[t] < y2[t + s]))
-            {
-                chk = false;
-                break;
-            }
-        }
-        if (chk)
-            ++ans;
-    }
+    cout << endl;
+    int ans;
+    cin >> ans;
     return ans;
 }
 
-void s3()
+void query2(int u)
+{
+    cout << "? 2 " << u << endl;
+}
+
+void solve()
 {
     int n;
     cin >> n;
-    vector<int> a(n), b(n), c(n);
-    read_vector(a);
-    read_vector(b);
-    read_vector(c);
+    vector<int> degree(n + 1, 0ll);
+    vector<vector<int>> adj(n + 1);
 
-    int ab = helper(a, b);
-    int bc = helper(b, c);
-    int ans = 1ll * n * ab * bc;
+    fl(i, n - 1)
+    {
+        int u, v;
+        cin >> u >> v;
+        adj[u].push_back(v);
+        adj[v].push_back(u);
+        degree[u]++;
+        degree[v]++;
+    }
 
-    cout << ans << '\n';
-}
+    isNodeValid = vector<bool>(n + 1, true);
 
-void s4()
-{
-    
+    int rootOfTreee = -1;
+
+    while (true)
+    {
+        int currCentroid = getCentroidOfTree(adj, degree, n);
+        // cout<<currCentroid<<endl;
+
+        vector<int> neighbors;
+        for (auto i : adj[currCentroid])
+        {
+            if (isNodeValid[i])
+            {
+                neighbors.push_back(i);
+            }
+        }
+
+        if ((int)neighbors.size() == 0)
+        {
+            rootOfTreee = currCentroid;
+            break;
+        }
+
+        sort(all(neighbors));
+        // print_vector(neighbors);
+
+        int sz = neighbors.size();
+
+        // binary search to find parent of the centorid
+        int low = 0, high = sz - 1, mid, ans = -1;
+
+        while (low <= high)
+        {
+            mid = (low + high) / 2;
+            vector<int> prefix = vector<int>(neighbors.begin(), neighbors.begin() + mid + 1);
+            int prevsum = query1(mid + 1, prefix);
+            query2(currCentroid);
+            int newsum = query1(mid + 1, prefix);
+            int assumeddiff = 2 * (mid + 1);
+
+            if (abs(newsum - prevsum) != assumeddiff)
+            {
+                ans = mid;
+                high = mid - 1;
+            }
+            else
+            {
+                low = mid + 1;
+            }
+        }
+
+        // root is found if ans==-1
+        if (ans == -1)
+        {
+            rootOfTreee = currCentroid;
+            break;
+        }
+        else
+        {
+            // cout<<"parent: "<<neighbors[ans]<<' ';
+            // remove non-essential nodes
+            isNodeValid[currCentroid] = false;
+            for (size_t i = 0; i < sz; i++)
+            {
+                if (i != ans)
+                {
+                    removeNodes(adj, neighbors[i], currCentroid);
+                }
+            }
+        }
+    }
+
+    // cout << "Root node: " << rootOfTreee << endl;
+
+    vector<bool> vis(n + 1, 0);
+    vector<int> ans(n + 1, -1);
+
+    vis[rootOfTreee] = 1;
+    vector<int> emptyArr;
+
+    vector<int> queryvalue(n + 1);
+    queryvalue[rootOfTreee] = query1(1, emptyArr, rootOfTreee);
+
+    ans[rootOfTreee] = queryvalue[rootOfTreee];
+
+    queue<int> q;
+    q.push(rootOfTreee);
+
+    while (!q.empty())
+    {
+        auto fr = q.front();
+        q.pop();
+        for (auto j : adj[fr])
+        {
+            if (!vis[j])
+            {
+                vis[j] = 1;
+                queryvalue[j] = query1(1, emptyArr, j);
+                ans[j] = queryvalue[j] - queryvalue[fr];
+                q.push(j);
+            }
+        }
+    }
+
+    cout << "! ";
+
+    for (int i = 0; i < n; i++)
+    {
+        cout << ans[i + 1] << ' ';
+    }
+
+    cout << endl;
 }
 
 int32_t main()
 {
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
-
     int t = 1;
     cin >> t;
 
     while (t--)
     {
-        s4();
+        memo.clear();
+        solve();
     }
 
     khalaas
