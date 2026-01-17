@@ -151,15 +151,81 @@ void sol2()
     {
         cost = cost2;
     }
-    else if(maxcomputers2 == maxcomputers){
+    else if (maxcomputers2 == maxcomputers)
+    {
         cost = min(cost, cost2);
     }
 
     cout << maxcomputers << " " << cost << endl;
 }
 
+vector<int> squares;
+
+int sol3_greedy(int n)
+{
+    int ans = 0;
+    for (auto i : squares)
+    {
+
+        ans += n / i;
+        n -= (n / i) * i;
+    }
+    return ans;
+}
+
+int dp[10001][11];
+
+int helper(int n, int pos)
+{
+    if (n == 0)
+    {
+        return 0;
+    }
+    if (pos == squares.size())
+    {
+        return 1e4;
+    }
+
+    if(dp[n][pos]!=-1){
+        return dp[n][pos];
+    }
+    int currmultiplier = n / squares[pos];
+    int ans = currmultiplier + helper(n - (squares[pos] * currmultiplier), pos + 1);
+
+    ans = min(ans, helper(n, pos + 1));
+    return dp[n][pos] = ans;
+}
+
+int sol3_stresstester(int n)
+{
+    memset(dp, -1, sizeof(dp));
+    return helper(n, 0);
+}
+
 int main()
 {
-    sol2();
+    for (int i = 1; i <= 100; i++)
+    {
+        squares.push_back(i * i);
+    }
+
+    reverse(squares.begin(), squares.end());
+    bool isStressTestSuccessful = false;
+    for (int i = 1; i < 1000; i++)
+    {
+        int gans = sol3_greedy(i);
+        int otherans = sol3_stresstester(i);
+        if (gans > otherans)
+        {
+            cout << "❌ Intuition was wrong, Stress test successful!!!\n";
+            cout << "n value: " << i << " " << gans << " " << otherans << endl;
+            isStressTestSuccessful = true;
+            break;
+        }
+    }
+    if (!isStressTestSuccessful)
+    {
+        cout << "✅  Intuition was correct, Stress test failed :)";
+    }
     return 0;
 }
