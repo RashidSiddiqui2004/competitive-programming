@@ -337,131 +337,20 @@ public:
     }
 };
 
-void s1()
-{
-    int n, m;
-    cin >> n >> m;
+void s1(){
 
-    vector<int> a(n), b(m);
-    read_vector(a);
-    read_vector(b);
+    vector<int> v(3);
+    read_vector(v);
 
-    priority_queue<int> alice(all(a)), bob(all(b));
-    bool isAliceturn = true;
+    sort(all(v));
 
-    while (!alice.empty() && !bob.empty())
-    {
-        if (isAliceturn)
-        {
-            int elem1 = alice.top();
-            int elem2 = bob.top();
-            bob.pop();
-            if (elem1 < elem2)
-            {
-                bob.push(elem2 - elem1);
-            }
-        }
-        else
-        {
-            int elem1 = bob.top();
-            int elem2 = alice.top();
-            alice.pop();
-            if (elem1 < elem2)
-            {
-                alice.push(elem2 - elem1);
-            }
-        }
-        isAliceturn = !isAliceturn;
+    if(v[2] == (v[0]+v[1])){
+        yes;
     }
-
-    if (alice.empty())
-    {
-        cout << "Bob\n";
+    else{
+        no;
     }
-    else
-    {
-        cout << "Alice\n";
-    }
-}
-
-void s2()
-{
-    int n;
-    cin >> n;
-
-    vector<int> a(n), b(n);
-
-    read_vector(a);
-    read_vector(b);
-
-    vector<int> pairs(n + 1, -1);
-
-    fl(i, n)
-    {
-        if (pairs[a[i]] == -1)
-        {
-            pairs[a[i]] = b[i];
-            pairs[b[i]] = a[i];
-        }
-        else if (pairs[a[i]] != b[i])
-        {
-            cout << -1 << endl;
-            return;
-        }
-    }
-
-    // always possible now
-
-    vector<pair<int, int>> operations;
-
-    // find mirror index a[i]=b[i]
-    int mirrorIndex = -1;
-    fl(i, n)
-    {
-        if (a[i] == b[i])
-        {
-            if (mirrorIndex != -1)
-            {
-                cout << -1 << endl;
-                return;
-            }
-            mirrorIndex = i;
-        }
-    }
-
-    if ((n & 1) && mirrorIndex != (n / 2))
-    {
-        swap(a[mirrorIndex], a[n / 2]);
-        swap(b[mirrorIndex], a[n / 2]);
-        operations.push_back({mirrorIndex, n / 2});
-    }
-
-    // rest operations
-    vector<int> p(n + 1);
-
-    fl(i, n)
-    {
-        p[a[i]] = i;
-    }
-
-    fl(i, n / 2)
-    {
-        int x = p[b[i]], y = n - i - 1;
-        if (x != y)
-        {
-            operations.push_back({x, y});
-            swap(a[x], a[y]);
-            swap(p[a[x]], p[a[y]]);
-            swap(b[x], b[y]);
-        }
-    }
-
-    cout << operations.size() << endl;
-
-    for (auto i : operations)
-    {
-        cout << i.first + 1 << ' ' << i.second + 1 << endl;
-    }
+    
 }
 
 int32_t main()
@@ -485,7 +374,7 @@ int32_t main()
 
     while (t--)
     {
-        s2();
+        s1();
     }
 
     khalaas
