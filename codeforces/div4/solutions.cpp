@@ -782,7 +782,7 @@ void r6()
     for (int i = 0; i < m; i++)
         prefxor[i + 1] = prefxor[i] ^ v[i];
 
-    map<pair<int,int>, int> xorval;
+    map<pair<int, int>, int> xorval;
 
     for (int i = 0; i < n; i++)
     {
@@ -840,14 +840,6 @@ int32_t main()
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
 
-    int t = 1;
-    cin >> t;
-
-    while (t--)
-    {
-        r6();
-    }
-
     // #ifndef ONLINE_JUDGE
     //     if (!freopen("input.txt", "r", stdin))
     //     {
@@ -858,6 +850,14 @@ int32_t main()
     //         cerr << "Output file error\n";
     //     }
     // #endif
+
+    int t = 1;
+    cin >> t;
+
+    while (t--)
+    {
+        r6();
+    }
 
     khalaas
 }
