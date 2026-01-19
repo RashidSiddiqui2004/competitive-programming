@@ -337,26 +337,516 @@ public:
     }
 };
 
-void s1(){
+void s1()
+{
 
     vector<int> v(3);
     read_vector(v);
 
     sort(all(v));
 
-    if(v[2] == (v[0]+v[1])){
+    if (v[2] == (v[0] + v[1]))
+    {
         yes;
     }
-    else{
+    else
+    {
         no;
     }
-    
+}
+
+void s2()
+{
+    int n;
+    cin >> n;
+
+    vector<int> v(n);
+    read_vector(v);
+
+    sort(all(v));
+
+    for (int i = 0; i < n - 1; i++)
+    {
+        if (v[i] == v[i + 1])
+        {
+            no;
+        }
+    }
+
+    yes;
+}
+
+void s3()
+{
+    int n = 8;
+    vector<string> grid(n);
+
+    fl(i, n)
+    {
+        cin >> grid[i];
+    }
+
+    // {R, B}
+    vector<int> rowcnt(8, 0), colcnt(8, 0);
+    char ans = '$';
+
+    fl(i, n)
+    {
+        fl(j, n)
+        {
+            rowcnt[i] += (grid[i][j] == 'R');
+        }
+        if (rowcnt[i] == n)
+            ans = 'R';
+    }
+
+    fl(i, n)
+    {
+        fl(j, n)
+        {
+            colcnt[i] += (grid[j][i] == 'B');
+        }
+        if (colcnt[i] == n)
+            ans = 'B';
+    }
+
+    cout << ans << endl;
+}
+
+void s4()
+{
+    int n;
+    cin >> n;
+    vector<int> v(n);
+    read_vector(v);
+
+    unordered_map<int, vector<int>> pos;
+
+    int res = -1;
+    fl(i, n)
+    {
+        if (v[i] == 1)
+        {
+            res = (i + 1) * 2;
+        }
+        else
+        {
+            for (auto j : primes)
+            {
+                if (j > v[i])
+                {
+                    continue;
+                }
+                if (v[i] % j == 0)
+                {
+                    pos[j].push_back(i + 1);
+                }
+            }
+        }
+    }
+
+    for (auto [elem, positions] : pos)
+    {
+        // cout<<elem<<' ';
+        // print_vector(positions);
+
+        int m = positions.size();
+        if (m == 0)
+        {
+            continue;
+        }
+        if (m == 1)
+        {
+            if (positions.back() != n)
+            {
+                res = max(res, positions.back() + n);
+            }
+            else
+            {
+                res = max(res, 2ll * n - 1);
+            }
+        }
+        else
+        {
+            if (positions.back() != n)
+            {
+                res = max(res, positions[m - 1] + n);
+            }
+            else
+            {
+                int i = m - 1;
+                while (i > 0 && positions[i] - positions[i - 1] == 1)
+                {
+                    --i;
+                }
+
+                if (i > 0)
+                {
+                    res = max(res, positions[i - 1] + positions[i] - 1);
+                }
+                else
+                {
+                    if (positions[0] > 1)
+                    {
+                        res = max(res, positions[0] * 2 - 1);
+                    }
+                }
+            }
+        }
+    }
+
+    cout << res << endl;
+}
+
+void s5()
+{
+    int n;
+    cin >> n;
+    vector<int> v(n);
+    read_vector(v);
+
+    vector<int> maxpos(1001, -1);
+    int res = -1;
+
+    fl(i, n)
+    {
+        if (v[i] == 1)
+        {
+            res = (i + 1) * 2;
+        }
+        maxpos[v[i]] = i + 1;
+    }
+
+    for (size_t i = 1; i <= 1000; i++)
+    {
+        if (maxpos[i] != -1)
+        {
+            for (int j = i + 1; j <= 1000; ++j)
+            {
+                if (maxpos[j] != -1 && gcd(i, j) == 1)
+                {
+                    res = max(res, maxpos[i] + maxpos[j]);
+                }
+            }
+        }
+    }
+
+    cout << res << endl;
+}
+
+void s6()
+{
+    int n, q;
+    cin >> n >> q;
+
+    vector<int> a(n);
+    read_vector(a);
+
+    vector<int> prefmax(n), prefsum(n);
+    prefmax[0] = a[0];
+    prefsum[0] = a[0];
+
+    for (int i = 1; i < n; i++)
+    {
+        prefmax[i] = max(prefmax[i - 1], a[i]);
+        prefsum[i] = prefsum[i - 1] + a[i];
+    }
+
+    fl(i, q)
+    {
+        int k;
+        cin >> k;
+
+        int low = 0, high = n - 1, mid, ans = -1;
+        while (low <= high)
+        {
+            mid = (low + high) / 2;
+            if (prefmax[mid] <= k)
+            {
+                ans = mid;
+                low = mid + 1;
+            }
+            else
+            {
+                high = mid - 1;
+            }
+        }
+
+        if (ans == -1)
+        {
+            cout << 0 << ' ';
+        }
+        else
+        {
+            cout << prefsum[ans] << ' ';
+        }
+    }
+
+    cout << endl;
+}
+
+void r1()
+{
+    int n;
+    cin >> n;
+
+    fl(i, n)
+    {
+        cout << i + 1 << ' ';
+    }
+    cout << endl;
+}
+
+void r2()
+{
+    int n, q;
+    cin >> n;
+
+    vector<int> a(n);
+    read_vector(a);
+
+    sort(all(a));
+    reverse(all(a));
+
+    vector<int> prefmax(n);
+    prefmax[0] = a[0];
+
+    int ans = a[0];
+
+    for (int i = 1; i < n; i++)
+    {
+        prefmax[i] = max(prefmax[i - 1], a[i]);
+        ans += prefmax[i];
+    }
+
+    cout << ans << endl;
+}
+
+void r3()
+{
+    int n;
+    cin >> n;
+    vector<int> v(n);
+    read_vector(v);
+
+    sort(all(v));
+
+    int i = 0, maxlem = 0;
+
+    while (i < n)
+    {
+        int curr = v[i], len = 1;
+        while (i < n && v[i] == curr)
+        {
+            ++i;
+        }
+        while (i < n)
+        {
+            if (i < n and v[i] == (curr + 1))
+            {
+                ++i;
+                ++len;
+                ++curr;
+                while (i < n && v[i] == curr)
+                {
+                    ++i;
+                }
+            }
+            else
+            {
+                break;
+            }
+        }
+        maxlem = max(maxlem, len);
+    }
+
+    cout << maxlem << endl;
+}
+
+void r4()
+{
+    int n, m, h;
+    cin >> n >> m >> h;
+
+    vector<int> origa(n);
+    read_vector(origa);
+
+    vector<int> temp = origa;
+
+    set<int> changed;
+
+    fl(i, m)
+    {
+        int b, c;
+        cin >> b >> c;
+        --b;
+
+        if (temp[b] + c <= h)
+        {
+            temp[b] += c;
+            changed.insert(b);
+        }
+        else
+        {
+            for (auto j : changed)
+            {
+                temp[j] = origa[j];
+            }
+            changed.clear();
+        }
+    }
+
+    print_vector(temp);
+}
+
+void r5()
+{
+    int n, m, k;
+    cin >> n >> m >> k;
+
+    vector<int> a(n), b(m);
+    read_vector(a);
+    read_vector(b);
+
+    string s;
+    cin >> s;
+
+    vector<int> prefsum(k);
+    prefsum[0] = (s[0] == 'R') ? 1 : -1;
+    for (int i = 1; i < k; i++)
+    {
+        prefsum[i] = prefsum[i - 1] + ((s[i] == 'R') ? 1 : -1);
+    }
+
+    sort(all(a));
+    sort(all(b));
+
+    vector<int> dtime(n, InF);
+
+    map<int, int> fpos;
+    for (int i = 0; i < k; i++)
+    {
+        if (!fpos.count(prefsum[i]))
+            fpos[prefsum[i]] = i;
+    }
+
+    for (int i = 0; i < n; i++)
+    {
+        int pos = a[i];
+        int idx = lower_bound(all(b), pos) - b.begin();
+
+        if (idx < m)
+        {
+            int d = b[idx] - pos;
+            if (fpos.count(d))
+                dtime[i] = min(dtime[i], fpos[d]);
+        }
+
+        if (idx > 0)
+        {
+            int d = b[idx - 1] - pos;
+            if (fpos.count(d))
+                dtime[i] = min(dtime[i], fpos[d]);
+        }
+    }
+
+    vector<int> times(k, 0);
+    for (int i = 0; i < n; i++)
+    {
+        if (dtime[i] < k)
+            times[dtime[i]]++;
+    }
+
+    vector<int> ans(k);
+
+    int curr = n;
+    for (int i = 0; i < k; i++)
+    {
+        curr -= times[i];
+        ans[i] = curr;
+    }
+
+    print_vector(ans);
+}
+
+void r6()
+{
+    int n, q;
+    cin >> n >> q;
+
+    int m = 1 << n;
+    vector<int> v(m);
+    read_vector(v);
+
+    vector<int> prefxor(m + 1, 0);
+    for (int i = 0; i < m; i++)
+        prefxor[i + 1] = prefxor[i] ^ v[i];
+
+    map<pair<int,int>, int> xorval;
+
+    for (int i = 0; i < n; i++)
+    {
+        int grpsize = 1 << i, cnt = m / grpsize;
+
+        for (int s = 0; s < cnt; s++)
+        {
+            int l = s * grpsize;
+            int r = l + grpsize;
+            xorval[{i, s}] = prefxor[r] ^ prefxor[l];
+        }
+    }
+
+    fl(i, q)
+    {
+        int b, c;
+        cin >> b >> c;
+        --b;
+
+        int old = v[b];
+        int ans = 0;
+
+        for (int i = 0; i < n; i++)
+        {
+            int grpsize = 1 << i;
+            int seg = b / grpsize;
+            int p = (seg / 2) * 2;
+
+            int x1 = xorval[{i, p}];
+            int x2 = xorval[{i, p + 1}];
+
+            if (seg == p)
+                x1 = x1 ^ old ^ c;
+            else
+                x2 = x2 ^ old ^ c;
+
+            if (x1 < x2)
+            {
+                if (seg == p)
+                    ans += grpsize;
+            }
+            else
+            {
+                if (seg == p + 1)
+                    ans += grpsize;
+            }
+        }
+
+        cout << ans << '\n';
+    }
 }
 
 int32_t main()
 {
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
+
+    int t = 1;
+    cin >> t;
+
+    while (t--)
+    {
+        r6();
+    }
 
     // #ifndef ONLINE_JUDGE
     //     if (!freopen("input.txt", "r", stdin))
@@ -368,14 +858,6 @@ int32_t main()
     //         cerr << "Output file error\n";
     //     }
     // #endif
-
-    int t = 1;
-    cin >> t;
-
-    while (t--)
-    {
-        s1();
-    }
 
     khalaas
 }
