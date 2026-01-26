@@ -178,27 +178,36 @@ bool is_prime(int n)
 vector<int> primes;
 vector<bool> isPrime;
 
+const int maxn = 3e5 + 1;
+vector<int> spf;
+
 vector<int> sieve(int n)
 {
     primes.clear();
     isPrime.assign(n + 1, true);
+    spf.assign(n + 1, 0);
+
+    isPrime[0] = isPrime[1] = false;
+    for (int i = 1; i <= n; i++)
+        spf[i] = i;
 
     for (int i = 2; i <= n; i++)
     {
         if (isPrime[i])
         {
-            primes.pb(i);
-            for (int j = i * 2; j <= n; j += i)
+            primes.push_back(i);
+            spf[i] = i;
+
+            for (long long j = 1LL * i * 2; j <= n; j += i)
             {
                 isPrime[j] = false;
+                if (spf[j] == j)
+                    spf[j] = i;
             }
         }
     }
     return primes;
 }
-
-const int maxn = 1e6 + 1;
-vector<int> spf;
 
 // Input/Output
 template <typename T>
@@ -494,21 +503,151 @@ void s4()
 
 void r1()
 {
-    
+    int n, s, x;
+    cin >> n >> s >> x;
+    int sum = 0;
+    fl(i, n)
+    {
+        int e;
+        cin >> e;
+        sum += e;
+    }
+
+    if ((sum > s) || ((sum - s) % x) != 0)
+    {
+        cout << "NO\n";
+    }
+    else
+    {
+        cout << "YES\n";
+    }
 }
 
+void r2()
+{
+    int n;
+    cin >> n;
+    vector<int> v(n);
+    read_vector(v);
+
+    int i = 0;
+    while (i < n && v[i] == (n - i))
+    {
+        ++i;
+    }
+    if (i == n)
+    {
+        print_vector(v);
+        return;
+    }
+    int req = n - i;
+    int j = i;
+    while (j < n and v[j] != req)
+    {
+        ++j;
+    }
+    // cout << i << ' ' << j << endl;
+
+    reverse(v.begin() + i, v.begin() + j + 1);
+
+    print_vector(v);
+}
+
+void r3()
+{
+    int n, q;
+    cin >> n >> q;
+
+    vector<int> a(n), b(n);
+
+    read_vector(a);
+    read_vector(b);
+
+    fl(i, n)
+    {
+        a[i] = max(a[i], b[i]);
+    }
+
+    for (int i = n - 2; i >= 0; i--)
+    {
+        a[i] = max(a[i], a[i + 1]);
+    }
+
+    vector<int> prefsum(n);
+
+    prefsum[0] = a[0];
+
+    for (int i = 1; i < n; i++)
+    {
+        prefsum[i] = prefsum[i - 1] + a[i];
+    }
+
+    fl(i, q)
+    {
+        int l, r;
+        cin >> l >> r;
+        --l, --r;
+        ll sum = prefsum[r] - (l == 0 ? 0 : prefsum[l - 1]);
+        cout << sum << ' ';
+    }
+
+    cout << endl;
+}
+
+void r4()
+{
+    int n;
+    cin >> n;
+    vector<int> a(n), b(n);
+    read_vector(a);
+    read_vector(b);
+    sort(all(a));
+
+    vector<int> prefb(n);
+    prefb[0] = b[0];
+
+    for (int i = 1; i < n; i++)
+    {
+        prefb[i] = prefb[i - 1] + b[i];
+    }
+
+    int maxscore = -1, res = -1;
+    int i = 0;
+
+    while (i < n)
+    {
+        int rem = n - i;
+        // we can choose values
+        int lb = lower_bound(prefb.begin(), prefb.end(), rem) - prefb.begin();
+        if (prefb[lb] > rem)
+        {
+            --lb;
+        }
+        // cout << lb << ' ';
+        int score = (lb + 1) * 1ll * (a[i]);
+        if (score > maxscore)
+        {
+            maxscore = score;
+        }
+
+        // cout << a[i] << " " << score << endl;
+
+        int curr = a[i];
+        while (i < n && a[i] == curr)
+        {
+            ++i;
+        }
+        // if (i == n)
+        //     break;
+    }
+
+    cout << maxscore << endl;
+}
+ 
 int32_t main()
 {
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
-
-    int t = 1;
-    cin >> t;
-
-    while (t--)
-    {
-        r1();
-    }
 
     // #ifndef ONLINE_JUDGE
     //     if (!freopen("input.txt", "r", stdin))
@@ -520,6 +659,15 @@ int32_t main()
     //         cerr << "Output file error\n";
     //     }
     // #endif
+
+    // sieve(maxn);
+    int t = 1;
+    cin >> t;
+
+    while (t--)
+    {
+        r4();
+    }
 
     khalaas
 }
