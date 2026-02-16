@@ -579,48 +579,6 @@ void s5()
     cout << endl;
 }
 
-
-void s5()
-{
-    int n;
-    cin >> n;
-    vector<vector<int>> adj(n + 1);
-    vector<int> par(n + 1);
-    par[1] = 0;
-    par[0] = -1;
-
-    adj[0].push_back(1);
-
-    vector<int> subtree(n + 1, 0);
-
-    for (int i = 1; i <= n; i++)
-    {
-        int u, v;
-        cin >> u >> v;
-        if (u == 0)
-        {
-            continue;
-        }
-        adj[i].push_back(u);
-        adj[i].push_back(v);
-        par[u] = i;
-        par[v] = i;
-    }
-
-    dfs(adj, 1, subtree);
-
-    vector<int> ans(n + 1);
-
-    dfs2(adj, 1, 0, subtree, ans, 0);
-
-    fl(i, n)
-    {
-        cout << (ans[i + 1]) % MOD << ' ';
-    }
-
-    cout << endl;
-}
-
 struct quad
 {
     int a, b, c;
@@ -733,6 +691,48 @@ void s6()
 
     cout << endl;
 }
+
+void s8()
+{
+    int n;
+    cin >> n;
+    vector<vector<int>> adj(n + 1);
+    vector<int> par(n + 1);
+    par[1] = 0;
+    par[0] = -1;
+
+    adj[0].push_back(1);
+
+    vector<int> subtree(n + 1, 0);
+
+    for (int i = 1; i <= n; i++)
+    {
+        int u, v;
+        cin >> u >> v;
+        if (u == 0)
+        {
+            continue;
+        }
+        adj[i].push_back(u);
+        adj[i].push_back(v);
+        par[u] = i;
+        par[v] = i;
+    }
+
+    dfs(adj, 1, subtree);
+
+    vector<int> ans(n + 1);
+
+    dfs2(adj, 1, 0, subtree, ans, 0);
+
+    fl(i, n)
+    {
+        cout << (ans[i + 1]) % MOD << ' ';
+    }
+
+    cout << endl;
+}
+
 
 int32_t main()
 {
