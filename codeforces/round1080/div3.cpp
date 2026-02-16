@@ -348,31 +348,24 @@ public:
 
 void s1()
 {
-    // 3,2,1
-    // n/2 elements in reverse order
-    // 3,2,1,5,4
     int n;
     cin >> n;
-
-    if (n & 1)
+    bool isf = false;
+    fl(i, n)
     {
-        for (int i = n; i > (n + 1) / 2; i--)
-        {
-            cout << i << ' ';
-        }
-        for (int i = 1; i <= (n + 1) / 2; i++)
-        {
-            cout << i << ' ';
-        }
-        cout << endl;
+        int e;
+        cin >> e;
+        if (e == 67)
+            isf = true;
+    }
+
+    if (isf)
+    {
+        cout << "Yes\n";
     }
     else
     {
-        for (int i = n; i >= 1; i--)
-        {
-            cout << i << ' ';
-        }
-        cout << endl;
+        cout << "No\n";
     }
 }
 
@@ -380,29 +373,47 @@ void s2()
 {
     int n;
     cin >> n;
-    vector<int> v(n), freq(n + 1);
+
+    vector<int> v(n + 1);
     fl(i, n)
     {
-        int e;
-        cin >> e;
-        v[i] = e;
-        freq[e]++;
+        cin >> v[i + 1];
     }
 
-    int ans = -1, minval = n + 1;
-    fl(i, n)
+    // vector<vector<int>> g;
+    vector<bool> mark(n + 1, false);
+
+    for (size_t i = 1; i <= n / 2; i++)
     {
-        if (freq[v[i]] == 1)
+        if (mark[i])
         {
-            if (minval > v[i])
-            {
-                ans = i + 1;
-                minval = v[i];
-            }
+            continue;
+        }
+        vector<int> grp;
+        for (int j = i; j <= n; j += j)
+        {
+            mark[j] = true;
+            grp.push_back(v[j]);
+        }
+        sort(all(grp));
+        // print_vector(grp);
+        int ptr = 0;
+        for (int j = i; j <= n; j += j)
+        {
+            v[j] = grp[ptr++];
         }
     }
-
-    cout << ans << endl;
+    int i = 1;
+    while ((i + 1) <= n)
+    {
+        if (v[i] > v[i + 1])
+        {
+            cout << "No\n";
+            return;
+        }
+        ++i;
+    }
+    cout << "Yes\n";
 }
 
 void s3()
@@ -410,269 +421,314 @@ void s3()
     int n;
     cin >> n;
     vector<int> v(n);
-    map<int, vector<int>> positions;
+    read_vector(v);
 
-    fl(i, n)
+    vvi dp(n, vi(7, INT_MAX));
+
+    for (int f = 1; f <= 6; f++)
     {
-        int e;
-        cin >> e;
-        v[i] = e;
-        positions[e].push_back(i + 1);
+        dp[0][f] = (v[0] == f ? 0 : 1);
     }
 
-    int ans = n + 1;
-
-    for (auto [__, pos] : positions)
+    for (int i = 1; i < n; i++)
     {
-        int m = pos.size();
-        int j = 1, segments = pos.front() != 1;
-        while (j < m)
+        for (int f = 1; f <= 6; f++)
         {
-            while (j < m && pos[j] == 1 + pos[j - 1])
+            for (int prev = 1; prev <= 6; prev++)
             {
-                ++j;
+                if (f != prev && (f + prev != 7))
+                {
+                    dp[i][f] = min(dp[i][f], dp[i - 1][prev] + (v[i] == f ? 0 : 1));
+                }
             }
-            if (j < m)
-                ++segments;
-            ++j;
         }
-        segments += pos.back() != n;
-        ans = min(ans, segments);
     }
+
+    int ans = INT_MAX;
+    for (int f = 1; f <= 6; f++)
+        ans = min(ans, dp[n - 1][f]);
 
     cout << ans << endl;
 }
 
 void s4()
 {
-    // 10 = 2*5
-    // 20 = 2*2*5
-    // 360 = 2*2*90
-
     int n;
     cin >> n;
-
-    int orign = n;
-    int maxMultiple = 0, factor = -1;
-
-    for (int i = 2; i <= sqrt(n); i++)
-    {
-        if ((n % i) == 0)
-        {
-            int multiple = 0;
-            while (n % i == 0)
-            {
-                multiple++;
-                n /= i;
-            }
-            if (multiple > maxMultiple)
-            {
-                maxMultiple = multiple;
-                factor = i;
-            }
-        }
-    }
-
-    if (n == orign)
-    {
-        maxMultiple = 1;
-        factor = n;
-    }
-
-    vector<int> result;
-
-    while (true)
-    {
-        if ((orign / factor) % factor == 0)
-        {
-            orign /= factor;
-            result.push_back(factor);
-        }
-        else
-        {
-            break;
-        }
-    }
-
-    result.push_back(orign);
-
-    cout << (int)result.size() << endl;
-
-    print_vector(result);
-}
-
-void r1()
-{
-    int n, s, x;
-    cin >> n >> s >> x;
-    int sum = 0;
+    vector<int> f(n + 1);
     fl(i, n)
     {
-        int e;
-        cin >> e;
-        sum += e;
+        cin >> f[i + 1];
     }
 
-    if ((sum > s) || ((sum - s) % x) != 0)
+    if (n == 2)
     {
-        cout << "NO\n";
-    }
-    else
-    {
-        cout << "YES\n";
-    }
-}
-
-void r2()
-{
-    int n;
-    cin >> n;
-    vector<int> v(n);
-    read_vector(v);
-
-    int i = 0;
-    while (i < n && v[i] == (n - i))
-    {
-        ++i;
-    }
-    if (i == n)
-    {
-        print_vector(v);
+        cout << f[2] << ' ' << f[1] << endl;
         return;
     }
-    int req = n - i;
-    int j = i;
-    while (j < n and v[j] != req)
+
+    vector<int> a(n + 1);
+
+    for (int i = 2; i <= n - 1; i++)
     {
-        ++j;
+        a[i] = (f[i + 1] + f[i - 1] - 2 * f[i]) / 2;
     }
-    // cout << i << ' ' << j << endl;
 
-    reverse(v.begin() + i, v.begin() + j + 1);
+    int p = 0, q = 0;
 
-    print_vector(v);
+    for (int i = 1; i <= n - 2; i++)
+    {
+        p += (i * a[i + 1]);
+    }
+
+    for (int i = 1; i <= n - 2; i++)
+    {
+        q += (i * a[n - i]);
+    }
+
+    a[1] = (f[n] - q) / (n - 1);
+    a[n] = (f[1] - p) / (n - 1);
+
+    for (int i = 1; i <= n; i++)
+    {
+        cout << a[i] << ' ';
+    }
+    cout << endl;
 }
 
-void r3()
+int dfs(vector<vector<int>> &adj, int node, vector<int> &subtree)
 {
-    int n, q;
-    cin >> n >> q;
+    int curr = 0;
 
-    vector<int> a(n), b(n);
+    for (auto i : adj[node])
+    {
+        curr += 2 + dfs(adj, i, subtree);
+    }
 
-    read_vector(a);
-    read_vector(b);
+    return subtree[node] = curr;
+}
+
+void dfs2(vector<vector<int>> &adj, int node, int par, vector<int> &subtree,
+          vector<int> &ans, int psum)
+{
+    ans[node] = (psum + subtree[node] + 1) % MOD;
+
+    for (auto i : adj[node])
+    {
+        if (i == par)
+            continue;
+        dfs2(adj, i, node, subtree, ans, ans[node]);
+    }
+}
+
+void s5()
+{
+    int n;
+    cin >> n;
+    vector<vector<int>> adj(n + 1);
+    vector<int> par(n + 1);
+    par[1] = 0;
+    par[0] = -1;
+
+    adj[0].push_back(1);
+
+    vector<int> subtree(n + 1, 0);
+
+    for (int i = 1; i <= n; i++)
+    {
+        int u, v;
+        cin >> u >> v;
+        if (u == 0)
+        {
+            continue;
+        }
+        adj[i].push_back(u);
+        adj[i].push_back(v);
+        par[u] = i;
+        par[v] = i;
+    }
+
+    dfs(adj, 1, subtree);
+    // print_vector(subtree);
+
+    vector<int> ans(n + 1);
+
+    // for (int i = 1; i <= n; i++)
+    // {
+    //     int curr = i;
+    //     int res = 0;
+    //     while (curr != -1)
+    //     {
+    //         res = (res + subtree[curr]) % MOD;
+    //         res = (res + 1) % MOD;
+    //         curr = par[curr];
+    //     }
+
+    //     res = (res - 1 + MOD) % MOD;
+
+    //     cout << res % MOD << ' ';
+    // }
+
+    dfs2(adj, 1, 0, subtree, ans, 0);
 
     fl(i, n)
     {
-        a[i] = max(a[i], b[i]);
-    }
-
-    for (int i = n - 2; i >= 0; i--)
-    {
-        a[i] = max(a[i], a[i + 1]);
-    }
-
-    vector<int> prefsum(n);
-
-    prefsum[0] = a[0];
-
-    for (int i = 1; i < n; i++)
-    {
-        prefsum[i] = prefsum[i - 1] + a[i];
-    }
-
-    fl(i, q)
-    {
-        int l, r;
-        cin >> l >> r;
-        --l, --r;
-        ll sum = prefsum[r] - (l == 0 ? 0 : prefsum[l - 1]);
-        cout << sum << ' ';
+        cout << (ans[i + 1]) % MOD << ' ';
     }
 
     cout << endl;
 }
 
-void r4()
+
+void s5()
 {
     int n;
     cin >> n;
-    vector<int> a(n), b(n);
-    read_vector(a);
-    read_vector(b);
-    sort(all(a));
+    vector<vector<int>> adj(n + 1);
+    vector<int> par(n + 1);
+    par[1] = 0;
+    par[0] = -1;
 
-    vector<int> prefb(n);
-    prefb[0] = b[0];
+    adj[0].push_back(1);
 
-    for (int i = 1; i < n; i++)
+    vector<int> subtree(n + 1, 0);
+
+    for (int i = 1; i <= n; i++)
     {
-        prefb[i] = prefb[i - 1] + b[i];
+        int u, v;
+        cin >> u >> v;
+        if (u == 0)
+        {
+            continue;
+        }
+        adj[i].push_back(u);
+        adj[i].push_back(v);
+        par[u] = i;
+        par[v] = i;
     }
 
-    int maxscore = -1, res = -1;
-    int i = 0;
+    dfs(adj, 1, subtree);
 
-    while (i < n)
-    {
-        int rem = n - i;
-        // we can choose values
-        int lb = lower_bound(prefb.begin(), prefb.end(), rem) - prefb.begin();
-        if (prefb[lb] > rem)
-        {
-            --lb;
-        }
-        // cout << lb << ' ';
-        int score = (lb + 1) * 1ll * (a[i]);
-        if (score > maxscore)
-        {
-            maxscore = score;
-        }
+    vector<int> ans(n + 1);
 
-        // cout << a[i] << " " << score << endl;
-
-        int curr = a[i];
-        while (i < n && a[i] == curr)
-        {
-            ++i;
-        }
-        // if (i == n)
-        //     break;
-    }
-
-    cout << maxscore << endl;
-}
-
-void r5()
-{
-    int n;
-    cin >> n;
-    vector<int> dp(n + 1, 1e9);
+    dfs2(adj, 1, 0, subtree, ans, 0);
 
     fl(i, n)
     {
-        int e;
-        cin >> e;
-        dp[e] = 1;
+        cout << (ans[i + 1]) % MOD << ' ';
     }
 
-    for (int i = 1; i <= n; i++)
+    cout << endl;
+}
+
+struct quad
+{
+    int a, b, c;
+
+    quad() {}
+
+    quad(int a, int b, int c)
     {
-        for (int j = 1; j <= sqrt(i); j++)
+        this->a = a;
+        this->b = b;
+        this->c = c;
+    }
+
+    bool isindepend(quad q1)
+    {
+        int a2 = q1.a, b2 = q1.b, c2 = q1.c;
+        if (this->c == c2)
         {
-            if (i % j == 0)
-            {
-                dp[i] = min(dp[i], dp[j] + dp[i / j]);
-            }
+            return false;
+        }
+
+        int d = (this->b - b2) * (this->b - b2);
+        d = d - (4 * (this->a - a2) * (this->c - c2));
+        return d < 0;
+    }
+};
+
+int largestset[3005];
+int currmaxsetsize;
+vector<int> largestsetValues;
+
+void solveset(vector<quad> &v, int pos, vector<int> &ind, int start)
+{
+    int n = v.size();
+    if (pos == n)
+    {
+        if ((int)ind.size() > currmaxsetsize)
+        {
+            currmaxsetsize = ind.size();
+            largestsetValues = ind;
+        }
+        return;
+    }
+
+    solveset(v, pos + 1, ind, start);
+    if (pos == start)
+    {
+        return;
+    }
+    bool isind = true;
+    for (auto i : ind)
+    {
+        if (!v[i].isindepend(v[pos]))
+        {
+            isind = false;
+            break;
         }
     }
 
-    for (int i = 1; i <= n; i++)
+    if (isind)
     {
-        if (dp[i] == 1e9)
-            dp[i] = -1;
-        cout << dp[i] << ' ';
+        ind.push_back(pos);
+        solveset(v, pos + 1, ind, start);
+        ind.pop_back();
+    }
+    return;
+}
+
+void s6()
+{
+    int n;
+    cin >> n;
+
+    for (int i = 0; i < 3005; i++)
+    {
+        largestset[i] = 0;
+    }
+
+    vector<quad> v;
+    v.reserve(n);
+
+    fl(i, n)
+    {
+        int a, b, c;
+        cin >> a >> b >> c;
+        v.emplace_back(a, b, c);
+    }
+
+    fl(i, n)
+    {
+        if (largestset[i] != 0)
+        {
+            cout << largestset[i] << ' ';
+            continue;
+        }
+        currmaxsetsize = 0;
+        largestsetValues.clear();
+
+        vector<int> ind = {i};
+        solveset(v, 0, ind, i);
+
+        print_vector(largestsetValues);
+
+        for (auto j : largestsetValues)
+        {
+            largestset[j] = currmaxsetsize;
+        }
+        cout << largestset[i] << ' ';
     }
 
     cout << endl;
@@ -700,7 +756,7 @@ int32_t main()
 
     while (t--)
     {
-        r5();
+        s6();
     }
 
     khalaas
