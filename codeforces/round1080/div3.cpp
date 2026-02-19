@@ -692,16 +692,71 @@ void s6()
     cout << endl;
 }
 
+int DFS1s8(vector<array<int, 2>> &adj, int node, vector<int> &subtree)
+{
+    if (adj[node][0] == -1)
+    {
+        return subtree[node] = 1;
+    }
+
+    int curr = 1;
+    curr += DFS1s8(adj, adj[node][0], subtree);
+    curr += DFS1s8(adj, adj[node][1], subtree);
+
+    return subtree[node] = curr;
+}
+
+int DFS2s8(vector<array<int, 2>> &adj, int node,
+           vector<int> &par, vector<int> &subtree, int time)
+{
+    while (true)
+    {
+        if (time == 0)
+            return node;
+
+        int subtreeTime = (subtree[node] - 1) * 2;
+
+        if (time == subtreeTime)
+            return node;
+
+        if (time > subtreeTime)
+        {
+            time -= (subtreeTime + 1);
+            node = par[node];
+        }
+        else
+        {
+            int left = adj[node][0];
+            int leftTime = subtree[left] * 2;
+
+            if (leftTime == time)
+                return node;
+
+            if (leftTime < time)
+            {
+                time -= (leftTime + 1);
+                node = adj[node][1];
+            }
+            else
+            {
+                time -= 1;
+                node = left;
+            }
+        }
+    }
+}
+
 void s8()
 {
-    int n;
-    cin >> n;
-    vector<vector<int>> adj(n + 1);
+    int n, q;
+    cin >> n >> q;
+    vector<array<int, 2>> adj(n + 1, {-1, -1});
     vector<int> par(n + 1);
     par[1] = 0;
     par[0] = -1;
 
-    adj[0].push_back(1);
+    adj[0][0] = 1;
+    adj[0][1] = 1;
 
     vector<int> subtree(n + 1, 0);
 
@@ -713,26 +768,25 @@ void s8()
         {
             continue;
         }
-        adj[i].push_back(u);
-        adj[i].push_back(v);
+        adj[i][0] = u;
+        adj[i][1] = v;
         par[u] = i;
         par[v] = i;
     }
 
-    dfs(adj, 1, subtree);
+    DFS1s8(adj, 1, subtree);
 
-    vector<int> ans(n + 1);
-
-    dfs2(adj, 1, 0, subtree, ans, 0);
-
-    fl(i, n)
+    fl(i, q)
     {
-        cout << (ans[i + 1]) % MOD << ' ';
+        int u, k;
+        cin >> u >> k;
+
+        int destNode = DFS2s8(adj, u, par, subtree, k);
+        cout << destNode << ' ';
     }
 
     cout << endl;
 }
-
 
 int32_t main()
 {
@@ -756,7 +810,7 @@ int32_t main()
 
     while (t--)
     {
-        s6();
+        s8();
     }
 
     khalaas
