@@ -1051,22 +1051,7 @@ void r3()
     cin >> n;
     vector<int> v(n);
     read_vector(v);
-
-    // vector<int> prefsum(n);
-    // prefsum[0] = v[0];
-
-    // for (size_t i = 1; i < n; i++)
-    // {
-    //     prefsum[i] = prefsum[i - 1] + v[i];
-    // }
-
-    // int ans = max(prefsum[n - 2], -(prefsum.back() - prefsum[0]));
-
-    // for (int i = 1; i < n - 1; i++)
-    // {
-    //     ans = max(ans, prefsum[i - 1] - (prefsum.back() - prefsum[i]));
-    // }
-
+ 
     int k = v[0];
     int maxres = 0;
 

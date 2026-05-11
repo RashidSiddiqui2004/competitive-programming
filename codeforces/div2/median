@@ -1,0 +1,19 @@
+Let's use this data to understand median and quartiles.
+
+10 11 12 13 14 15 16 17 18 19 20
+               ^
+               |
+        Median (6th value)
+Here, n = 11, so (n/2)th value will be the median.
+
+Median -> it is the mid-point of the data.
+
+n = odd => (n/2)th element
+n = even => mean of (n/2)th and (n+1)/2th element
+
+Quartile -> it divides the data in 4 equal parts.
+
+Qi for i = (1, 2, 3)
+Q1
+Q2 = Median
+Q3

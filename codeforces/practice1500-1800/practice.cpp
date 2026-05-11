@@ -683,16 +683,16 @@ void s6()
         }
     }
 
-    int maxPoints = 0;
+    int maxpoints = 0;
     for (int i = 0; i < n; i++)
     {
         int ub = upper_bound(all(x), x[i] + k) - x.begin();
         int windowSize1 = ub - i;
         int windowSize2 = (ub == n) ? 0 : t[ub];
-        maxPoints = max(maxPoints, windowSize1 + windowSize2);
+        maxpoints = max(maxpoints, windowSize1 + windowSize2);
     }
 
-    cout << maxPoints << endl;
+    cout << maxpoints << endl;
 }
 
 int s7helper(vector<int> &a, vvi &dp, int pos = 0, int player = 0)
@@ -1140,12 +1140,549 @@ void s11()
         ans = max(ans, numberOfSubsequences(temp, a, b));
     }
 
-    cout<<ans<<endl;
+    cout << ans << endl;
 }
 
+struct tree
+{
+    int position;
+    int height;
+    int xmin;
+    int xmax;
+    tree(int x, int h)
+    {
+        this->position = x;
+        this->height = h;
+        this->xmin = position - height;
+        this->xmax = position + height;
+    }
 
-void s12(){
+    tree() {}
+};
 
+void r1()
+{
+    int n;
+    cin >> n;
+    vector<tree> trees;
+    fl(i, n)
+    {
+        int x, h;
+        cin >> x >> h;
+        trees.emplace_back(x, h);
+    }
+    sort(all(trees), [](tree &t1, tree &t2)
+         { return t1.position < t2.position; });
+
+    // for (auto i : trees)
+    // {
+    //     cout << i.position << ' ';
+    // }
+    // cout << endl;
+
+    int leftmost = LLONG_MIN;
+    int result = 0;
+    fl(i, n)
+    {
+        int lval = trees[i].xmin;
+        int rval = trees[i].xmax;
+        if (lval > leftmost)
+        {
+            ++result;
+            leftmost = trees[i].position;
+        }
+        else if (i == (n - 1) || (rval < trees[i + 1].position))
+        {
+            ++result;
+            leftmost = rval;
+        }
+        else
+        {
+            leftmost = trees[i].position;
+        }
+        // cout<<result<<endl;
+    }
+
+    cout << result << endl;
+}
+
+void r2()
+{
+    int n;
+    cin >> n;
+
+    vector<pair<string, int>> v;
+    unordered_map<string, int> scoremap;
+
+    for (int i = 0; i < n; i++)
+    {
+        string name;
+        int score;
+        cin >> name >> score;
+
+        v.push_back({name, score});
+        scoremap[name] += score;
+    }
+
+    int maxpoints = INT_MIN;
+    for (auto &p : scoremap)
+    {
+        maxpoints = max(maxpoints, p.second);
+    }
+
+    unordered_map<string, int> runningscore;
+    for (auto &t : v)
+    {
+        runningscore[t.first] += t.second;
+
+        if (runningscore[t.first] >= maxpoints &&
+            scoremap[t.first] == maxpoints)
+        {
+            cout << t.first;
+            return;
+        }
+    }
+}
+
+void r3()
+{
+    int n, k;
+    cin >> n >> k;
+
+    string s;
+    cin >> s;
+
+    vector<int> v(n);
+    read_vector(v);
+
+    const int INF = 1e13;
+    bool hasMissingValue = 0;
+    int pos = -1;
+
+    fl(i, n)
+    {
+        if (s[i] == '0')
+        {
+            hasMissingValue = true;
+            pos = i;
+            v[i] = -INF;
+        }
+    }
+
+    int maxsum = 0, currsum = 0;
+    for (int i = 0; i < n; i++)
+    {
+        currsum = max(currsum + v[i], v[i]);
+        maxsum = max(maxsum, currsum);
+    }
+
+    if ((maxsum > k) || (maxsum != k && !hasMissingValue))
+    {
+        no;
+    }
+
+    if (hasMissingValue)
+    {
+        int b = 0, c = 0;
+        int sum = 0;
+        for (int i = pos - 1; i >= 0; i--)
+        {
+            sum += v[i];
+            b = max(b, sum);
+        }
+        sum = 0;
+        for (int i = pos + 1; i < n; i++)
+        {
+            sum += v[i];
+            c = max(c, sum);
+        }
+
+        v[pos] = k - (b + c);
+    }
+
+    cout << "Yes\n";
+    print_vector(v);
+}
+
+void r4()
+{
+    int n, a, b, c, d;
+    cin >> n >> a >> b >> c >> d;
+
+    int x = c - d;
+    int y = c + d;
+    int lmax = n * b, lmin = -n * b;
+    int lower_bound = x - n * a;
+    int upper_bound = y - n * a;
+
+    // cout<<lmin<<' '<<lmax<<endl;
+    // cout<<upper_bound<<' '<<lower_bound<<endl;
+
+    if (lmax >= lower_bound && lmin <= upper_bound)
+    {
+        yes;
+    }
+    no;
+}
+
+void r5()
+{
+    int n, k;
+    cin >> n >> k;
+
+    vector<int> a(n);
+    read_vector(a);
+
+    vector<int> peaksinprefix(n, 0);
+    for (int i = 1; i < n - 1; i++)
+    {
+        peaksinprefix[i] = peaksinprefix[i - 1] + ((a[i] > a[i - 1]) && (a[i] > a[i + 1]));
+    }
+
+    if (n >= 2)
+        peaksinprefix[n - 1] = peaksinprefix[n - 2];
+
+    // print_vector(peaksinprefix);
+
+    int maxpeaks = -1, lval = 1;
+    for (int i = 0; i < n; i++)
+    {
+        int startpos = i, endpos = i + k - 1;
+        if (endpos >= n)
+        {
+            break;
+        }
+        int subarrayPeaks = peaksinprefix[endpos - 1] - peaksinprefix[startpos];
+        if (maxpeaks < subarrayPeaks)
+        {
+            maxpeaks = subarrayPeaks;
+            lval = i + 1;
+        }
+    }
+
+    int maxparts = 1 + maxpeaks;
+    cout << maxparts << ' ' << lval << endl;
+}
+
+void r6()
+{
+    int n;
+    cin >> n;
+    vector<int> v(n + 1);
+    vector<int> positions(n + 1);
+    fl(i, n)
+    {
+        cin >> v[i + 1];
+        positions[v[i + 1]] = i + 1;
+    }
+
+    vector<bool> occupied(n + 1, false);
+
+    int num = 1;
+    while (num <= n)
+    {
+        int index = positions[num];
+        while (num <= n)
+        {
+            occupied[index] = true;
+            if (index + 1 <= n)
+            {
+                if (occupied[index + 1])
+                {
+                    ++num;
+                    break;
+                }
+                else
+                {
+                    if (positions[++num] == index + 1)
+                    {
+                        index = positions[num];
+                    }
+                    else
+                    {
+                        no;
+                    }
+                }
+            }
+            else
+            {
+                ++num;
+                break;
+            }
+        }
+    }
+
+    yes;
+}
+
+void r7()
+{
+    int n;
+    cin >> n;
+    string s;
+    cin >> s;
+
+    if (s.find("aa") != string::npos)
+    {
+        cout << 2 << endl;
+    }
+    else if (s.find("aba") != string::npos || s.find("aca") != string::npos)
+    {
+        cout << 3 << endl;
+    }
+    else if (s.find("abca") != string::npos || s.find("acba") != string::npos)
+    {
+        cout << 4 << endl;
+    }
+    else if ((s.length() >= 7) && (s.find("abbacca") != string::npos || s.find("accabba") != string::npos))
+    {
+        cout << 7 << endl;
+    }
+    else
+    {
+        cout << -1 << endl;
+    }
+}
+
+void r8()
+{
+    int n;
+    cin >> n;
+
+    vector<vector<int>> adj(n + 1);
+
+    fl(i, n - 1)
+    {
+        int u, v;
+        cin >> u >> v;
+        adj[u].push_back(v);
+        adj[v].push_back(u);
+    }
+
+    vector<int> parent(n + 1, -1);
+    vector<bool> used(n + 1, false); // used to keep track of trees in forest
+    vector<bool> seen(n + 1, false); // used for finding diameter only
+
+    vector<array<int, 3>> ans;
+    while (true)
+    {
+        int usedNodes = 0;
+        for (auto i : used)
+        {
+            if (i == true)
+                usedNodes++;
+        }
+        if (usedNodes == n)
+        {
+            break;
+        }
+        seen.assign(n + 1, false);
+        auto dfs = [&](auto self, int node, int par) -> pair<int, int>
+        {
+            pair<int, int> ans = {1, node};
+            parent[node] = par;
+            seen[node] = true;
+            for (auto neighbor : adj[node])
+            {
+                if (neighbor != par && !used[neighbor])
+                {
+                    pair<int, int> vp = self(self, neighbor, node);
+                    vp.first++;
+                    ans = max(ans, vp);
+                }
+            }
+            return ans;
+        };
+
+        for (int i = 1; i <= n; i++)
+            if (!used[i] && !seen[i])
+            {
+                auto [d1, j] = dfs(dfs, i, -1);
+                auto [d2, k] = dfs(dfs, j, -1);
+                ans.push_back({d2, max(j, k), min(j, k)});
+
+                while (k != -1)
+                {
+                    used[k] = true;
+                    k = parent[k];
+                }
+            }
+    }
+
+    sort(all(ans), greater<array<int, 3>>());
+    for (auto [i, j, k] : ans)
+    {
+        cout << i << ' ' << j << ' ' << k << ' ';
+    }
+    cout << endl;
+}
+
+int f(int x, int y, int n, int m)
+{
+    if ((x == 1 && y == 1) || (x == 1 && y == m) ||
+        (x == n && y == 1) || (x == n && y == m))
+    {
+        return 2;
+    }
+
+    if (x == 1 || x == n || y == 1 || y == m)
+    {
+        return 3;
+    }
+
+    return 4;
+}
+
+void r9()
+{
+    int n, m;
+    cin >> n >> m;
+    int x1, y1, x2, y2;
+    cin >> x1 >> y1 >> x2 >> y2;
+    int ans = min(f(x1, y1, n, m), f(x2, y2, n, m));
+    cout << ans << endl;
+}
+
+void r10()
+{
+    int n, k;
+    cin >> n >> k;
+
+    vector<vector<int>> grid(n + 1, vector<int>(n + 1));
+
+    for (int i = 1; i <= n; i++)
+    {
+        for (int j = 1; j <= n; j++)
+        {
+            cin >> grid[i][j];
+        }
+    }
+
+    int kmin = 0;
+
+    for (int i = 1; i <= n; i++)
+    {
+        for (int j = 1; j <= n; j++)
+        {
+            if (grid[i][j] != grid[n + 1 - i][n + 1 - j])
+            {
+                cout << i << ' ' << j << endl;
+                kmin++;
+            }
+        }
+    }
+
+    kmin /= 2;
+    cout << kmin << endl;
+
+    int diff = k - kmin;
+
+    if (diff < 0)
+    {
+        cout << "NO\n";
+    }
+    else if (n & 1)
+    {
+        cout << "YES\n";
+    }
+    else if (diff & 1)
+    {
+        cout << "YES\n";
+    }
+    else
+    {
+        cout << "NO\n";
+    }
+}
+
+void p1()
+{
+    int n;
+    cin >> n;
+
+    map<int, vector<int>> arraysizes;
+    vector<vector<int>> arrays(n);
+
+    int ptr = 0;
+    fl(i, n)
+    {
+        int k;
+        cin >> k;
+        vector<int> v(k);
+        read_vector(v);
+        arrays[ptr] = v;
+        arraysizes[k].push_back(ptr);
+        ++ptr;
+    }
+
+    vector<int> ans;
+    int currsize = 0;
+
+    while (true)
+    {
+        auto lb = arraysizes.lower_bound(currsize + 1);
+        if (lb == arraysizes.end())
+        {
+            break;
+        }
+        vector<vector<int>> remarrays;
+
+        while (lb != arraysizes.end())
+        {
+            auto &v = lb->second;
+            for (auto i : v)
+            {
+                remarrays.emplace_back(
+                    arrays[i].begin() + currsize,
+                    arrays[i].end());
+            }
+            ++lb;
+        }
+
+        sort(all(remarrays));
+        auto t = remarrays.front();
+        int m = t.size();
+        for (int i = 0; i < m; i++)
+        {
+            ans.push_back(t[i]);
+            currsize++;
+        }
+    }
+
+    print_vector(ans);
+}
+
+void p2()
+{
+    int n, k, q;
+    cin >> n >> k >> q;
+    vector<int> d(k + 1), t(k + 1);
+    d[0] = 0;
+    t[0] = 0;
+
+    for (int i = 1; i <= k; i++)
+    {
+        cin >> d[i];
+    }
+    for (int i = 1; i <= k; i++)
+    {
+        cin >> t[i];
+    }
+
+    fl(i, q)
+    {
+        int pt;
+        cin >> pt;
+        auto lb = lower_bound(all(d), pt) - d.begin();
+        if (pt == d[lb])
+        {
+            cout << t[lb] << ' ';
+            continue;
+        }
+        int time = t[lb-1] + (pt - d[lb-1]) * (t[lb]-t[lb-1])/(d[lb]-d[lb-1]);
+        cout << time << ' ';
+    }
+    cout << endl;
 }
 
 int32_t main()
@@ -1154,11 +1691,11 @@ int32_t main()
     cin.tie(nullptr);
 
     int t = 1;
-    // cin >> t;
+    cin >> t;
 
     while (t--)
     {
-        s11();
+        p2();
     }
 
     khalaas

@@ -348,361 +348,119 @@ public:
 
 void s1()
 {
-    // 3,2,1
-    // n/2 elements in reverse order
-    // 3,2,1,5,4
-    int n;
-    cin >> n;
-
-    if (n & 1)
-    {
-        for (int i = n; i > (n + 1) / 2; i--)
-        {
-            cout << i << ' ';
-        }
-        for (int i = 1; i <= (n + 1) / 2; i++)
-        {
-            cout << i << ' ';
-        }
-        cout << endl;
-    }
-    else
-    {
-        for (int i = n; i >= 1; i--)
-        {
-            cout << i << ' ';
-        }
-        cout << endl;
-    }
+    string s;
+    cin >> s;
+    cout << "1F601" << endl;
 }
 
 void s2()
 {
     int n;
     cin >> n;
-    vector<int> v(n), freq(n + 1);
-    fl(i, n)
-    {
-        int e;
-        cin >> e;
-        v[i] = e;
-        freq[e]++;
-    }
 
-    int ans = -1, minval = n + 1;
-    fl(i, n)
+    switch (n)
     {
-        if (freq[v[i]] == 1)
-        {
-            if (minval > v[i])
-            {
-                ans = i + 1;
-                minval = v[i];
-            }
-        }
+    case 1:
+        cout << "Walk";
+        break;
+    case 2:
+        cout << "No";
+        break;
+    case 3:
+        cout << "No";
+        break;
+    case 4:
+        cout << "No";
+        break;
+    case 5:
+        cout << "Yes";
+        break;
+    case 6:
+        cout << "Yes";
+        break;
+    case 7:
+        cout << "backwards";
+        break;
+    case 8:
+        cout << 7;
+        break;
     }
-
-    cout << ans << endl;
 }
+
+// string s = "TNAISEDEMERESUHNITMDRAEOXR";
 
 void s3()
 {
-    int n;
-    cin >> n;
-    vector<int> v(n);
-    map<int, vector<int>> positions;
+    int n, m;
+    cin >> n >> m;
 
-    fl(i, n)
+    vector<vector<pll>> adj(n);
+
+    fl(i, m)
     {
-        int e;
-        cin >> e;
-        v[i] = e;
-        positions[e].push_back(i + 1);
+        int u, v, w;
+        cin >> u >> v >> w;
+        --u, --v;
+        adj[u].push_back({v, w});
+        adj[v].push_back({u, w});
     }
 
-    int ans = n + 1;
+    priority_queue<pll, vector<pll>, greater<pll>> pq;
 
-    for (auto [__, pos] : positions)
+    vector<int> dist(n, INT_MAX);
+
+    dist[0] = 0;
+    pq.push({0, 0});
+
+    while (!pq.empty())
     {
-        int m = pos.size();
-        int j = 1, segments = pos.front() != 1;
-        while (j < m)
+        auto top = pq.top();
+        pq.pop();
+
+        int d = top.first;
+        int u = top.second;
+
+        if (d > dist[u])
+            continue;
+
+        for (auto &p : adj[u])
         {
-            while (j < m && pos[j] == 1 + pos[j - 1])
+            int v = p.first;
+            int w = p.second;
+
+            if (dist[u] + w < dist[v])
             {
-                ++j;
-            }
-            if (j < m)
-                ++segments;
-            ++j;
-        }
-        segments += pos.back() != n;
-        ans = min(ans, segments);
-    }
-
-    cout << ans << endl;
-}
-
-void s4()
-{
-    // 10 = 2*5
-    // 20 = 2*2*5
-    // 360 = 2*2*90
-
-    int n;
-    cin >> n;
-
-    int orign = n;
-    int maxMultiple = 0, factor = -1;
-
-    for (int i = 2; i <= sqrt(n); i++)
-    {
-        if ((n % i) == 0)
-        {
-            int multiple = 0;
-            while (n % i == 0)
-            {
-                multiple++;
-                n /= i;
-            }
-            if (multiple > maxMultiple)
-            {
-                maxMultiple = multiple;
-                factor = i;
+                dist[v] = dist[u] + w;
+                pq.push({dist[v], v});
             }
         }
     }
 
-    if (n == orign)
+    for (int i = 1; i < n; i++)
     {
-        maxMultiple = 1;
-        factor = n;
-    }
-
-    vector<int> result;
-
-    while (true)
-    {
-        if ((orign / factor) % factor == 0)
+        if (dist[i] == INT_MAX)
         {
-            orign /= factor;
-            result.push_back(factor);
+            cout << -1 << '\n';
         }
         else
-        {
-            break;
-        }
+            cout << dist[i] << '\n';
     }
-
-    result.push_back(orign);
-
-    cout << (int)result.size() << endl;
-
-    print_vector(result);
-}
-
-void r1()
-{
-    int n, s, x;
-    cin >> n >> s >> x;
-    int sum = 0;
-    fl(i, n)
-    {
-        int e;
-        cin >> e;
-        sum += e;
-    }
-
-    if ((sum > s) || ((sum - s) % x) != 0)
-    {
-        cout << "NO\n";
-    }
-    else
-    {
-        cout << "YES\n";
-    }
-}
-
-void r2()
-{
-    int n;
-    cin >> n;
-    vector<int> v(n);
-    read_vector(v);
-
-    int i = 0;
-    while (i < n && v[i] == (n - i))
-    {
-        ++i;
-    }
-    if (i == n)
-    {
-        print_vector(v);
-        return;
-    }
-    int req = n - i;
-    int j = i;
-    while (j < n and v[j] != req)
-    {
-        ++j;
-    }
-    // cout << i << ' ' << j << endl;
-
-    reverse(v.begin() + i, v.begin() + j + 1);
-
-    print_vector(v);
-}
-
-void r3()
-{
-    int n, q;
-    cin >> n >> q;
-
-    vector<int> a(n), b(n);
-
-    read_vector(a);
-    read_vector(b);
-
-    fl(i, n)
-    {
-        a[i] = max(a[i], b[i]);
-    }
-
-    for (int i = n - 2; i >= 0; i--)
-    {
-        a[i] = max(a[i], a[i + 1]);
-    }
-
-    vector<int> prefsum(n);
-
-    prefsum[0] = a[0];
-
-    for (int i = 1; i < n; i++)
-    {
-        prefsum[i] = prefsum[i - 1] + a[i];
-    }
-
-    fl(i, q)
-    {
-        int l, r;
-        cin >> l >> r;
-        --l, --r;
-        ll sum = prefsum[r] - (l == 0 ? 0 : prefsum[l - 1]);
-        cout << sum << ' ';
-    }
-
     cout << endl;
 }
 
-void r4()
-{
-    int n;
-    cin >> n;
-    vector<int> a(n), b(n);
-    read_vector(a);
-    read_vector(b);
-    sort(all(a));
-
-    vector<int> prefb(n);
-    prefb[0] = b[0];
-
-    for (int i = 1; i < n; i++)
-    {
-        prefb[i] = prefb[i - 1] + b[i];
-    }
-
-    int maxscore = -1, res = -1;
-    int i = 0;
-
-    while (i < n)
-    {
-        int rem = n - i;
-        // we can choose values
-        int lb = lower_bound(prefb.begin(), prefb.end(), rem) - prefb.begin();
-        if (prefb[lb] > rem)
-        {
-            --lb;
-        }
-        // cout << lb << ' ';
-        int score = (lb + 1) * 1ll * (a[i]);
-        if (score > maxscore)
-        {
-            maxscore = score;
-        }
-
-        // cout << a[i] << " " << score << endl;
-
-        int curr = a[i];
-        while (i < n && a[i] == curr)
-        {
-            ++i;
-        }
-        // if (i == n)
-        //     break;
-    }
-
-    cout << maxscore << endl;
+void s4(){
+    cout<<"74747474747474747474747474";
 }
 
-void r5()
-{
-    int n;
-    cin >> n;
-    vector<int> dp(n + 1, 1e9);
-
-    fl(i, n)
-    {
-        int e;
-        cin >> e;
-        dp[e] = 1;
-    }
-
-    for (int i = 1; i <= n; i++)
-    {
-        for (int j = 1; j <= sqrt(i); j++)
-        {
-            if (i % j == 0)
-            {
-                dp[i] = min(dp[i], dp[j] + dp[i / j]);
-            }
-        }
-    }
-
-    for (int i = 1; i <= n; i++)
-    {
-        if (dp[i] == 1e9)
-            dp[i] = -1;
-        cout << dp[i] << ' ';
-    }
-
-    cout << endl;
+void s5(){
+    cout<<"Yes";
 }
 
-// https://codeforces.com/contest/1551/problem/B1
-void r6(){
-    string s;
-    cin>>s;
-
-    vector<int> freq(26, 0);
-
-    for(auto i: s){
-        freq[i-'a']++;
-    }
-
-    int red = 0, singlefreq = 0;
-
-    fl(i, 26){
-        if(freq[i]>1){
-            ++red;
-        }
-        else if(freq[i]==1){
-            ++singlefreq;
-        }
-    }
-
-    red+=singlefreq/2;
-
-    cout<<red<<endl;
+void s6(){
+    int a,b,c;
+    cin>>a>>b>>c;
+    int ans=a^b^c;
+    cout<<ans<<endl;
 }
 
 int32_t main()
@@ -710,24 +468,12 @@ int32_t main()
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
 
-    // #ifndef ONLINE_JUDGE
-    //     if (!freopen("input.txt", "r", stdin))
-    //     {
-    //         cerr << "Input file error\n";
-    //     }
-    //     if (!freopen("output.txt", "w", stdout))
-    //     {
-    //         cerr << "Output file error\n";
-    //     }
-    // #endif
-
-    // sieve(maxn);
     int t = 1;
     cin >> t;
 
     while (t--)
     {
-        r6();
+        s6();
     }
 
     khalaas

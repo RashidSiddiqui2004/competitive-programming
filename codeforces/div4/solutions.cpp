@@ -114,20 +114,6 @@ ll exp_fast(ll a, ll b)
     return res;
 }
 
-// vector<ll> pow2;
-
-// void mod_pow2_memo()
-// {
-//     pow2.resize(1e5 + 1);
-
-//     ll curr = 1ll;
-//     for (int i = 0; i <= 1e5; i++)
-//     {
-//         pow2[i] = curr;
-//         curr = (curr * 2) % MOD;
-//     }
-// }
-
 ll mod_inv(ll a, ll m = MOD)
 {
     // Modular inverse using Fermat's Little Theorem: a^(m-2) % m
@@ -835,28 +821,299 @@ void r6()
     }
 }
 
+void t1()
+{
+    int n, x;
+    cin >> n >> x;
+
+    fl(i, n)
+    {
+        int num;
+        cin >> num;
+        if (num < x)
+        {
+            cout << 1 << endl;
+            x = num;
+        }
+        else
+        {
+            cout << 0 << endl;
+        }
+    }
+}
+
+void t2()
+{
+    double d;
+    cin >> d;
+    double r = d / 2;
+    const double pi = 3.141592653589793;
+    double area = (double)pi * r * r;
+    cout << std::setprecision(10) << area << endl;
+}
+
+void t3()
+{
+    int n, m, q;
+    cin >> n >> m >> q;
+
+    fl(i, q)
+    {
+        int type, val;
+        cin >> type >> val;
+
+        if (type == 1)
+        {
+            cout << m * val << endl;
+            n -= val;
+        }
+        else
+        {
+            cout << n * val << endl;
+            m -= val;
+        }
+    }
+}
+
+void t4()
+{
+    int n, l, r;
+    cin >> n >> l >> r;
+
+    string s;
+    cin >> s;
+
+    vector<vector<int>> freq(26);
+
+    fl(i, n)
+    {
+        freq[s[i] - 'a'].push_back(i);
+    }
+
+    int ans = 0;
+    fl(i, 26)
+    {
+        auto v = freq[i];
+        int m = v.size();
+        for (int j = 0; j < m; j++)
+        {
+            auto lb = lower_bound(all(v), v[j] + l);
+            auto ub = upper_bound(all(v), v[j] + r);
+            ans += (ub - lb);
+        }
+    }
+
+    cout << ans << endl;
+}
+
+void t5()
+{
+    int l, r, d, u;
+    cin >> l >> r >> d >> u;
+
+    int ans = 0;
+    for (int i = l; i <= r; i++)
+    {
+        if (abs(i) & 1)
+            continue;
+        ans += abs(min(i, d)) + abs(min(i, u));
+    }
+
+    cout << ans << ' ';
+
+    for (int i = d; i <= u; i++)
+    {
+        if (abs(i) & 1)
+            continue;
+        if (i >= l)
+            ans += (i - l + 1);
+    }
+
+    cout << ans << endl;
+}
+
+int dp[10][90][90][2];
+
+int t6helper(string &s, int pos = 0, int oddsum = 0, int evensum = 0, bool istight = 1)
+{
+    int n = s.size();
+    if (pos == n)
+    {
+        if ((n % 2) == 0)
+        {
+            swap(oddsum, evensum);
+        }
+        // cout << evensum << ' ' << oddsum << endl;
+        int diff = evensum - oddsum;
+        return (diff == 1);
+    }
+    int &memvalue = dp[pos][oddsum][evensum][istight];
+
+    if (memvalue != -1)
+    {
+        return memvalue;
+    }
+
+    int upperlimit = istight ? (s[pos] - '0') : 9;
+    int ans = 0;
+    for (int digit = 0; digit <= upperlimit; digit++)
+    {
+        // 1-based positioning
+        int newOdd = oddsum;
+        int newEven = evensum;
+
+        if ((pos + 1) & 1)
+            newOdd += digit;
+        else
+            newEven += digit;
+
+        ans += t6helper(
+            s,
+            pos + 1,
+            newOdd,
+            newEven,
+            istight && (digit == upperlimit));
+    }
+    return memvalue = ans;
+}
+
+// https://www.spoj.com/problems/RAONE/
+void t6()
+{
+    int l, r;
+    cin >> l >> r;
+
+    string ls = to_string(l - 1);
+    string rs = to_string(r);
+
+    memset(dp, -1, sizeof(dp));
+    int lessthanr = t6helper(rs);
+
+    memset(dp, -1, sizeof(dp));
+    int lessthanl = (l == 0) ? 0 : t6helper(ls);
+
+    int ans = lessthanr - lessthanl;
+    cout << ans << endl;
+}
+
+void p1()
+{
+    int n, k;
+    cin >> n >> k;
+    vector<int> a(n + 1);
+    fl(i, n)
+    {
+        cin >> a[i + 1];
+    }
+    for (int i = k; i <= n; i += k)
+    {
+        cout << a[i] << ' ';
+    }
+}
+
+void p2()
+{
+    int n, k;
+    cin >> n >> k;
+
+    int asum = 0, bsum = 0;
+    fl(i, n)
+    {
+        int e;
+        cin >> e;
+        if (asum + e <= k)
+        {
+            asum += e;
+        }
+        else
+        {
+            bsum += e;
+        }
+    }
+    if (asum > bsum)
+    {
+        cout << "Takahashi" << endl;
+    }
+    else if (asum < bsum)
+    {
+        cout << "Aoki" << endl;
+    }
+    else
+    {
+        cout << "Draw" << endl;
+    }
+}
+
+void p3()
+{
+    int n, t, e;
+    cin >> n >> t >> e;
+    vector<int> p(n);
+    read_vector(p);
+    sort(all(p));
+
+    int ans = 0;
+
+    int sum = 0;
+    for (auto i : p)
+    {
+        sum += (i * 1ll * t);
+        if (sum <= e)
+        {
+            ++ans;
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    cout << ans << endl;
+}
+
+void p4()
+{
+    int n, k;
+    cin >> n >> k;
+
+    map<int, int> mp;
+
+    fl(i, n)
+    {
+        int l, r;
+        cin >> l >> r;
+        mp[l]++;
+        mp[r]--;
+    }
+
+    int ans = 0;
+    int pref = 0, prev = 0;
+    bool first = true;
+
+    for (auto &[pos, val] : mp)
+    {
+        if (!first && pref >= k)
+            ans += pos - prev;
+
+        pref += val;
+        prev = pos;
+        first = false;
+    }
+
+    cout << ans << endl;
+}
+
 int32_t main()
 {
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
 
-    // #ifndef ONLINE_JUDGE
-    //     if (!freopen("input.txt", "r", stdin))
-    //     {
-    //         cerr << "Input file error\n";
-    //     }
-    //     if (!freopen("output.txt", "w", stdout))
-    //     {
-    //         cerr << "Output file error\n";
-    //     }
-    // #endif
-
     int t = 1;
-    cin >> t;
+    // cin >> t;
 
     while (t--)
     {
-        r6();
+        p4();
     }
 
     khalaas

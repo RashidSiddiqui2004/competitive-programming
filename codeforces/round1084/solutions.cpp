@@ -348,96 +348,100 @@ public:
 
 void s1()
 {
-    // 3,2,1
-    // n/2 elements in reverse order
-    // 3,2,1,5,4
     int n;
     cin >> n;
 
-    if (n & 1)
+    vector<string> v(n);
+
+    int maxlen = 0;
+    fl(i, n)
     {
-        for (int i = n; i > (n + 1) / 2; i--)
-        {
-            cout << i << ' ';
-        }
-        for (int i = 1; i <= (n + 1) / 2; i++)
-        {
-            cout << i << ' ';
-        }
-        cout << endl;
+        string s;
+        cin >> s;
+        v[i] = s;
+        maxlen = max(maxlen, (int)s.size());
     }
-    else
+
+    for (auto i : v)
     {
-        for (int i = n; i >= 1; i--)
-        {
-            cout << i << ' ';
-        }
-        cout << endl;
+        int len = i.size();
+        int diff = maxlen - len;
+        string ans = string(diff / 2, '.');
+        ans += i;
+        ans += string(diff / 2, '.');
+        cout << ans << endl;
     }
 }
 
 void s2()
 {
-    int n;
-    cin >> n;
-    vector<int> v(n), freq(n + 1);
+    int n, k;
+    cin >> n >> k;
+    ++k;
+
+    map<int, vector<int>> ind;
+    vector<int> freq(n + 2, 0ll);
+
     fl(i, n)
     {
         int e;
         cin >> e;
-        v[i] = e;
-        freq[e]++;
+        ind[e].push_back(i);
+        ++freq[e];
     }
 
-    int ans = -1, minval = n + 1;
-    fl(i, n)
+    vector<int> ans(n, 0);
+
+    vector<int> pool;
+
+    int globalcnt = 1;
+    for (int i = 1; i <= n; i++)
     {
-        if (freq[v[i]] == 1)
+        if (freq[i] == 0)
         {
-            if (minval > v[i])
+            continue;
+        }
+        if (freq[i] < k)
+        {
+            for (auto j : ind[i])
             {
-                ans = i + 1;
-                minval = v[i];
+                ans[j] = globalcnt;
+                globalcnt = (globalcnt + 1) % k;
+                if (globalcnt == 0)
+                    globalcnt = 1;
+            }
+        }
+        else
+        {
+            int curr = 1;
+            for (auto j : ind[i])
+            {
+                ans[j] = curr;
+                curr = (curr + 1) % k;
+                if (curr == 0)
+                    break;
             }
         }
     }
 
-    cout << ans << endl;
+    print_vector(ans);
 }
 
 void s3()
 {
     int n;
     cin >> n;
-    vector<int> v(n);
-    map<int, vector<int>> positions;
+    vector<int> a(n);
+    read_vector(a);
 
-    fl(i, n)
+    int mx = *max_element(all(a));
+
+    int ans = 0;
+
+    for (auto i : a)
     {
-        int e;
-        cin >> e;
-        v[i] = e;
-        positions[e].push_back(i + 1);
-    }
-
-    int ans = n + 1;
-
-    for (auto [__, pos] : positions)
-    {
-        int m = pos.size();
-        int j = 1, segments = pos.front() != 1;
-        while (j < m)
-        {
-            while (j < m && pos[j] == 1 + pos[j - 1])
-            {
-                ++j;
-            }
-            if (j < m)
-                ++segments;
-            ++j;
-        }
-        segments += pos.back() != n;
-        ans = min(ans, segments);
+        if (i == mx)
+            ++ans;
     }
 
     cout << ans << endl;
@@ -445,48 +449,110 @@ void s3()
 
 void s4()
 {
-    // 10 = 2*5
-    // 20 = 2*2*5
-    // 360 = 2*2*90
+    int n;
+    cin >> n;
+    vector<int> a(n);
+    read_vector(a);
 
+    bool issorted = true;
+
+    for (int i = 0; i < n - 1; i++)
+    {
+        if (a[i] > a[i + 1])
+        {
+            issorted = false;
+            break;
+        }
+    }
+
+    int ans = issorted ? n : 1;
+
+    cout << ans << endl;
+}
+
+void s5()
+{
     int n;
     cin >> n;
 
-    int orign = n;
-    int maxMultiple = 0, factor = -1;
+    string s;
+    cin >> s;
 
-    for (int i = 2; i <= sqrt(n); i++)
+    stack<char> st;
+
+    fl(i, n)
     {
-        if ((n % i) == 0)
+        if (st.empty())
         {
-            int multiple = 0;
-            while (n % i == 0)
+            st.push(s[i]);
+        }
+        else
+        {
+            if (st.top() == s[i])
             {
-                multiple++;
-                n /= i;
+                st.pop();
             }
-            if (multiple > maxMultiple)
+            else
             {
-                maxMultiple = multiple;
-                factor = i;
+                st.push(s[i]);
             }
         }
     }
 
-    if (n == orign)
+    if (st.empty())
     {
-        maxMultiple = 1;
-        factor = n;
+        yes;
+    }
+    else
+    {
+        no;
+    }
+}
+
+void s6()
+{
+    int n, x, y;
+    cin >> n >> x >> y;
+
+    vector<int> v(n);
+    read_vector(v);
+
+    vector<int> t;
+    for (int i = x; i < y; i++)
+    {
+        t.push_back(v[i]);
     }
 
-    vector<int> result;
+    int mn = *min_element(all(t));
+    int i = 0;
 
-    while (true)
+    for (; i < n; i++)
     {
-        if ((orign / factor) % factor == 0)
+        if (t[i] == mn)
         {
-            orign /= factor;
-            result.push_back(factor);
+            break;
+        }
+    }
+
+    vector<int> a;
+    for (int j = i; j < t.size(); j++)
+    {
+        a.push_back(t[j]);
+    }
+    for (int j = 0; j < i; j++)
+    {
+        a.push_back(t[j]);
+    }
+
+    i = x - 1;
+    vector<int> later;
+
+    while (i >= 0)
+    {
+        if (v[i] > mn)
+        {
+            later.push_back(v[i]);
+            --i;
         }
         else
         {
@@ -494,215 +560,72 @@ void s4()
         }
     }
 
-    result.push_back(orign);
+    // print_vector(a);
+    // print_vector(later);
 
-    cout << (int)result.size() << endl;
-
-    print_vector(result);
-}
-
-void r1()
-{
-    int n, s, x;
-    cin >> n >> s >> x;
-    int sum = 0;
-    fl(i, n)
+    if (!later.empty())
     {
-        int e;
-        cin >> e;
-        sum += e;
-    }
-
-    if ((sum > s) || ((sum - s) % x) != 0)
-    {
-        cout << "NO\n";
+        for (int j = 0; j <= i; j++)
+        {
+            cout << v[j] << ' ';
+        }
+        int m = a.size();
+        for (int j = 0; j < m; j++)
+        {
+            cout << a[j] << ' ';
+        }
+        m = later.size();
+        for (int j = m - 1; j >= 0; j--)
+        {
+            cout << later[j] << ' ';
+        }
+        for (int j = y; j < n; j++)
+        {
+            cout << v[j] << ' ';
+        }
     }
     else
     {
-        cout << "YES\n";
-    }
-}
+        i = y;
+        vector<int> before;
 
-void r2()
-{
-    int n;
-    cin >> n;
-    vector<int> v(n);
-    read_vector(v);
-
-    int i = 0;
-    while (i < n && v[i] == (n - i))
-    {
-        ++i;
-    }
-    if (i == n)
-    {
-        print_vector(v);
-        return;
-    }
-    int req = n - i;
-    int j = i;
-    while (j < n and v[j] != req)
-    {
-        ++j;
-    }
-    // cout << i << ' ' << j << endl;
-
-    reverse(v.begin() + i, v.begin() + j + 1);
-
-    print_vector(v);
-}
-
-void r3()
-{
-    int n, q;
-    cin >> n >> q;
-
-    vector<int> a(n), b(n);
-
-    read_vector(a);
-    read_vector(b);
-
-    fl(i, n)
-    {
-        a[i] = max(a[i], b[i]);
-    }
-
-    for (int i = n - 2; i >= 0; i--)
-    {
-        a[i] = max(a[i], a[i + 1]);
-    }
-
-    vector<int> prefsum(n);
-
-    prefsum[0] = a[0];
-
-    for (int i = 1; i < n; i++)
-    {
-        prefsum[i] = prefsum[i - 1] + a[i];
-    }
-
-    fl(i, q)
-    {
-        int l, r;
-        cin >> l >> r;
-        --l, --r;
-        ll sum = prefsum[r] - (l == 0 ? 0 : prefsum[l - 1]);
-        cout << sum << ' ';
-    }
-
-    cout << endl;
-}
-
-void r4()
-{
-    int n;
-    cin >> n;
-    vector<int> a(n), b(n);
-    read_vector(a);
-    read_vector(b);
-    sort(all(a));
-
-    vector<int> prefb(n);
-    prefb[0] = b[0];
-
-    for (int i = 1; i < n; i++)
-    {
-        prefb[i] = prefb[i - 1] + b[i];
-    }
-
-    int maxscore = -1, res = -1;
-    int i = 0;
-
-    while (i < n)
-    {
-        int rem = n - i;
-        // we can choose values
-        int lb = lower_bound(prefb.begin(), prefb.end(), rem) - prefb.begin();
-        if (prefb[lb] > rem)
+        while (i < n)
         {
-            --lb;
-        }
-        // cout << lb << ' ';
-        int score = (lb + 1) * 1ll * (a[i]);
-        if (score > maxscore)
-        {
-            maxscore = score;
-        }
-
-        // cout << a[i] << " " << score << endl;
-
-        int curr = a[i];
-        while (i < n && a[i] == curr)
-        {
-            ++i;
-        }
-        // if (i == n)
-        //     break;
-    }
-
-    cout << maxscore << endl;
-}
-
-void r5()
-{
-    int n;
-    cin >> n;
-    vector<int> dp(n + 1, 1e9);
-
-    fl(i, n)
-    {
-        int e;
-        cin >> e;
-        dp[e] = 1;
-    }
-
-    for (int i = 1; i <= n; i++)
-    {
-        for (int j = 1; j <= sqrt(i); j++)
-        {
-            if (i % j == 0)
+            if (v[i] < mn)
             {
-                dp[i] = min(dp[i], dp[j] + dp[i / j]);
+                before.push_back(v[i]);
+                ++i;
+            }
+            else
+            {
+                break;
             }
         }
-    }
 
-    for (int i = 1; i <= n; i++)
-    {
-        if (dp[i] == 1e9)
-            dp[i] = -1;
-        cout << dp[i] << ' ';
+        for (int j = 0; j < x; j++)
+        {
+            cout << v[j] << ' ';
+        }
+
+        int m = before.size();
+        for (int j = 0; j < m; j++)
+        {
+            cout << before[j] << ' ';
+        }
+
+        m = a.size();
+        for (int j = 0; j < m; j++)
+        {
+            cout << a[j] << ' ';
+        }
+
+        for (int j = i; j < n; j++)
+        {
+            cout << v[j] << ' ';
+        }
     }
 
     cout << endl;
-}
-
-// https://codeforces.com/contest/1551/problem/B1
-void r6(){
-    string s;
-    cin>>s;
-
-    vector<int> freq(26, 0);
-
-    for(auto i: s){
-        freq[i-'a']++;
-    }
-
-    int red = 0, singlefreq = 0;
-
-    fl(i, 26){
-        if(freq[i]>1){
-            ++red;
-        }
-        else if(freq[i]==1){
-            ++singlefreq;
-        }
-    }
-
-    red+=singlefreq/2;
-
-    cout<<red<<endl;
 }
 
 int32_t main()
@@ -710,24 +633,12 @@ int32_t main()
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
 
-    // #ifndef ONLINE_JUDGE
-    //     if (!freopen("input.txt", "r", stdin))
-    //     {
-    //         cerr << "Input file error\n";
-    //     }
-    //     if (!freopen("output.txt", "w", stdout))
-    //     {
-    //         cerr << "Output file error\n";
-    //     }
-    // #endif
-
-    // sieve(maxn);
     int t = 1;
     cin >> t;
 
     while (t--)
     {
-        r6();
+        s6();
     }
 
     khalaas

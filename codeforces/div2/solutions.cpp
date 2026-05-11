@@ -348,387 +348,288 @@ public:
 
 void s1()
 {
-    // 3,2,1
-    // n/2 elements in reverse order
-    // 3,2,1,5,4
-    int n;
-    cin >> n;
+    int n, y, r;
+    cin >> n >> y >> r;
 
-    if (n & 1)
-    {
-        for (int i = n; i > (n + 1) / 2; i--)
-        {
-            cout << i << ' ';
-        }
-        for (int i = 1; i <= (n + 1) / 2; i++)
-        {
-            cout << i << ' ';
-        }
-        cout << endl;
-    }
-    else
-    {
-        for (int i = n; i >= 1; i--)
-        {
-            cout << i << ' ';
-        }
-        cout << endl;
-    }
+    int ans = (y / 2) + r;
+    ans = min(n, ans);
+
+    cout << ans << endl;
 }
 
 void s2()
 {
     int n;
     cin >> n;
-    vector<int> v(n), freq(n + 1);
-    fl(i, n)
+
+    map<int, int> freq;
+    fl(i, 2 * n)
     {
         int e;
         cin >> e;
-        v[i] = e;
-        freq[e]++;
+        ++freq[e];
     }
 
-    int ans = -1, minval = n + 1;
-    fl(i, n)
+    int ans = 0;
+    int oddCnt = 0;
+    int cnt4 = 0;
+
+    for (auto &p : freq)
     {
-        if (freq[v[i]] == 1)
+        int f = p.second;
+
+        if (f % 2 == 1)
         {
-            if (minval > v[i])
-            {
-                ans = i + 1;
-                minval = v[i];
-            }
-        }
-    }
-
-    cout << ans << endl;
-}
-
-void s3()
-{
-    int n;
-    cin >> n;
-    vector<int> v(n);
-    map<int, vector<int>> positions;
-
-    fl(i, n)
-    {
-        int e;
-        cin >> e;
-        v[i] = e;
-        positions[e].push_back(i + 1);
-    }
-
-    int ans = n + 1;
-
-    for (auto [__, pos] : positions)
-    {
-        int m = pos.size();
-        int j = 1, segments = pos.front() != 1;
-        while (j < m)
-        {
-            while (j < m && pos[j] == 1 + pos[j - 1])
-            {
-                ++j;
-            }
-            if (j < m)
-                ++segments;
-            ++j;
-        }
-        segments += pos.back() != n;
-        ans = min(ans, segments);
-    }
-
-    cout << ans << endl;
-}
-
-void s4()
-{
-    // 10 = 2*5
-    // 20 = 2*2*5
-    // 360 = 2*2*90
-
-    int n;
-    cin >> n;
-
-    int orign = n;
-    int maxMultiple = 0, factor = -1;
-
-    for (int i = 2; i <= sqrt(n); i++)
-    {
-        if ((n % i) == 0)
-        {
-            int multiple = 0;
-            while (n % i == 0)
-            {
-                multiple++;
-                n /= i;
-            }
-            if (multiple > maxMultiple)
-            {
-                maxMultiple = multiple;
-                factor = i;
-            }
-        }
-    }
-
-    if (n == orign)
-    {
-        maxMultiple = 1;
-        factor = n;
-    }
-
-    vector<int> result;
-
-    while (true)
-    {
-        if ((orign / factor) % factor == 0)
-        {
-            orign /= factor;
-            result.push_back(factor);
+            ans += 1;
+            oddCnt++;
         }
         else
         {
-            break;
-        }
-    }
-
-    result.push_back(orign);
-
-    cout << (int)result.size() << endl;
-
-    print_vector(result);
-}
-
-void r1()
-{
-    int n, s, x;
-    cin >> n >> s >> x;
-    int sum = 0;
-    fl(i, n)
-    {
-        int e;
-        cin >> e;
-        sum += e;
-    }
-
-    if ((sum > s) || ((sum - s) % x) != 0)
-    {
-        cout << "NO\n";
-    }
-    else
-    {
-        cout << "YES\n";
-    }
-}
-
-void r2()
-{
-    int n;
-    cin >> n;
-    vector<int> v(n);
-    read_vector(v);
-
-    int i = 0;
-    while (i < n && v[i] == (n - i))
-    {
-        ++i;
-    }
-    if (i == n)
-    {
-        print_vector(v);
-        return;
-    }
-    int req = n - i;
-    int j = i;
-    while (j < n and v[j] != req)
-    {
-        ++j;
-    }
-    // cout << i << ' ' << j << endl;
-
-    reverse(v.begin() + i, v.begin() + j + 1);
-
-    print_vector(v);
-}
-
-void r3()
-{
-    int n, q;
-    cin >> n >> q;
-
-    vector<int> a(n), b(n);
-
-    read_vector(a);
-    read_vector(b);
-
-    fl(i, n)
-    {
-        a[i] = max(a[i], b[i]);
-    }
-
-    for (int i = n - 2; i >= 0; i--)
-    {
-        a[i] = max(a[i], a[i + 1]);
-    }
-
-    vector<int> prefsum(n);
-
-    prefsum[0] = a[0];
-
-    for (int i = 1; i < n; i++)
-    {
-        prefsum[i] = prefsum[i - 1] + a[i];
-    }
-
-    fl(i, q)
-    {
-        int l, r;
-        cin >> l >> r;
-        --l, --r;
-        ll sum = prefsum[r] - (l == 0 ? 0 : prefsum[l - 1]);
-        cout << sum << ' ';
-    }
-
-    cout << endl;
-}
-
-void r4()
-{
-    int n;
-    cin >> n;
-    vector<int> a(n), b(n);
-    read_vector(a);
-    read_vector(b);
-    sort(all(a));
-
-    vector<int> prefb(n);
-    prefb[0] = b[0];
-
-    for (int i = 1; i < n; i++)
-    {
-        prefb[i] = prefb[i - 1] + b[i];
-    }
-
-    int maxscore = -1, res = -1;
-    int i = 0;
-
-    while (i < n)
-    {
-        int rem = n - i;
-        // we can choose values
-        int lb = lower_bound(prefb.begin(), prefb.end(), rem) - prefb.begin();
-        if (prefb[lb] > rem)
-        {
-            --lb;
-        }
-        // cout << lb << ' ';
-        int score = (lb + 1) * 1ll * (a[i]);
-        if (score > maxscore)
-        {
-            maxscore = score;
-        }
-
-        // cout << a[i] << " " << score << endl;
-
-        int curr = a[i];
-        while (i < n && a[i] == curr)
-        {
-            ++i;
-        }
-        // if (i == n)
-        //     break;
-    }
-
-    cout << maxscore << endl;
-}
-
-void r5()
-{
-    int n;
-    cin >> n;
-    vector<int> dp(n + 1, 1e9);
-
-    fl(i, n)
-    {
-        int e;
-        cin >> e;
-        dp[e] = 1;
-    }
-
-    for (int i = 1; i <= n; i++)
-    {
-        for (int j = 1; j <= sqrt(i); j++)
-        {
-            if (i % j == 0)
+            if ((f / 2) % 2 == 1)
             {
-                dp[i] = min(dp[i], dp[j] + dp[i / j]);
+                ans += 2;
+            }
+            else
+            {
+                cnt4++;
             }
         }
     }
 
-    for (int i = 1; i <= n; i++)
+    if (cnt4 % 2 == 0)
     {
-        if (dp[i] == 1e9)
-            dp[i] = -1;
-        cout << dp[i] << ' ';
+        ans += 2 * cnt4;
+    }
+    else
+    {
+        if (oddCnt > 0)
+        {
+            ans += 2 * cnt4;
+        }
+        else
+        {
+            ans += 2 * (cnt4 - 1);
+        }
     }
 
-    cout << endl;
+    cout << ans << endl;
 }
 
-// https://codeforces.com/contest/1551/problem/B1
-void r6(){
+void fool1()
+{
+    int n;
+    cin >> n;
+
+    vector<int> v = {1200, 1400, 1600, 1900, 2100, 2300, 2400, 2600, 3000};
+    for (auto i : v)
+    {
+        if (i > n)
+        {
+            cout << i;
+            return;
+        }
+    }
+}
+
+void fool2()
+{
     string s;
-    cin>>s;
+    cin >> s;
 
-    vector<int> freq(26, 0);
+    int n = s.size();
 
-    for(auto i: s){
-        freq[i-'a']++;
+    if (n == 4)
+    {
+        cout << "none" << endl;
+    }
+    else
+    {
+        map<int, string> mp;
+        mp[3] = "the";
+        mp[5] = "buffy";
+        mp[6] = "slayer";
+        mp[7] = "vampire";
+
+        string a = mp[n];
+
+        string ans = "";
+
+        fl(i, n)
+        {
+            int ind1 = s[i] - 'a', ind2 = a[i] - 'a';
+            char ch = 'a' + ((ind1 + ind2) % 26);
+            ans += ch;
+        }
+
+        cout << ans << endl;
+    }
+}
+
+void fool3()
+{
+    cout << "security";
+}
+
+void fool4(int n)
+{
+    int ans = 1;
+    int e;
+    fl(i, n)
+    {
+        cin >> e;
+        ans *= e;
+    }
+    cout << ans << endl;
+}
+
+using uint32 = unsigned int;
+
+struct MT19937Clone
+{
+    static const int N = 624;
+    static const int M = 397;
+    uint32 state[N];
+    int index = N;
+
+    // Untemper helpers
+    uint32 unshiftRight(uint32 y, int shift)
+    {
+        uint32 res = 0;
+        for (int i = 0; i < 32; i++)
+        {
+            uint32 bit = (y >> i) & 1;
+            if (i >= shift)
+                bit ^= (res >> (i - shift)) & 1;
+            res |= (bit << i);
+        }
+        return res;
     }
 
-    int red = 0, singlefreq = 0;
-
-    fl(i, 26){
-        if(freq[i]>1){
-            ++red;
+    uint32 unshiftLeft(uint32 y, int shift, uint32 mask)
+    {
+        uint32 res = 0;
+        for (int i = 31; i >= 0; i--)
+        {
+            uint32 bit = (y >> i) & 1;
+            if (i + shift < 32)
+                bit ^= ((res >> (i + shift)) & 1) & ((mask >> i) & 1);
+            res |= (bit << i);
         }
-        else if(freq[i]==1){
-            ++singlefreq;
-        }
+        return res;
     }
 
-    red+=singlefreq/2;
+    uint32 untemper(uint32 y)
+    {
+        y = unshiftRight(y, 18);
+        y = unshiftLeft(y, 15, 0xefc60000);
+        y = unshiftLeft(y, 7, 0x9d2c5680);
+        y = unshiftRight(y, 11);
+        return y;
+    }
 
-    cout<<red<<endl;
+    void seedFromOutputs(const vector<uint32> &outputs)
+    {
+        for (int i = 0; i < N; i++)
+        {
+            state[i] = untemper(outputs[i]);
+        }
+        index = N;
+    }
+
+    void twist()
+    {
+        for (int i = 0; i < N; i++)
+        {
+            uint32 x = (state[i] & 0x80000000) | (state[(i + 1) % N] & 0x7fffffff);
+            uint32 xA = x >> 1;
+            if (x & 1)
+                xA ^= 0x9908b0df;
+            state[i] = state[(i + M) % N] ^ xA;
+        }
+        index = 0;
+    }
+
+    uint32 extract()
+    {
+        if (index >= N)
+            twist();
+
+        uint32 y = state[index++];
+
+        y ^= (y >> 11);
+        y ^= (y << 7) & 0x9d2c5680;
+        y ^= (y << 15) & 0xefc60000;
+        y ^= (y >> 18);
+
+        return y;
+    }
+};
+
+int query(int l, int r)
+{
+    cout << "? " << l << ' ' << r << "\n";
+    fflush(stdout);
+    int ans;
+    cin >> ans;
+    return ans;
+}
+
+void result(int ans)
+{
+    cout << "! " << ans << "\n";
+    fflush(stdout);
+}
+
+void fool5()
+{
+    int n;
+    cin >> n;
+
+    vector<uint32> v(n);
+    
+    int M = min(624ll, n);
+    for (int i = 1; i <= M; i++)
+    {
+        v[i - 1] = query(i, i);
+    }
+
+    if (n <= 624)
+    {
+        int ans = *min_element(all(v));
+        result(ans);
+        return;
+    }
+
+    MT19937Clone mt;
+    mt.seedFromOutputs(v);
+
+    for (int i = 625; i <= n; i++)
+    {
+        v[i-1] = mt.extract();
+    }
+
+    int ans = *min_element(all(v));
+    result(ans);
 }
 
 int32_t main()
 {
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
+    // ios::sync_with_stdio(false);
+    // cin.tie(nullptr);
 
-    // #ifndef ONLINE_JUDGE
-    //     if (!freopen("input.txt", "r", stdin))
-    //     {
-    //         cerr << "Input file error\n";
-    //     }
-    //     if (!freopen("output.txt", "w", stdout))
-    //     {
-    //         cerr << "Output file error\n";
-    //     }
-    // #endif
-
-    // sieve(maxn);
     int t = 1;
-    cin >> t;
+    // cin >> t;
 
     while (t--)
     {
-        r6();
+        fool5();
     }
+
+    // string pi = "3141592653589793238462643383279502884197";
+    // for (int i = 0; i < t; i++)
+    // {
+    //     fool4(pi[i]-'0');
+    // }
 
     khalaas
 }
